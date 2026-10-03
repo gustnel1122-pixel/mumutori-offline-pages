@@ -35,8 +35,7 @@
     face(n,'s3-right',d,h,`rotateY(90deg) translateZ(${w/2}px)`);
     face(n,'s3-left',d,h,`rotateY(-90deg) translateZ(${w/2}px)`);
     face(n,'s3-top',w,d,`rotateX(90deg) translateZ(${h/2}px)`);
-    // The camera remains above the floor, so lower faces are never visible.
-    if (material === 'light') face(n,'s3-bottom',w,d,`rotateX(-90deg) translateZ(${h/2}px)`);
+    face(n,'s3-bottom',w,d,`rotateX(-90deg) translateZ(${h/2}px)`);
     return n;
   }
   function plane(cls,x,y,z,w,h,extra='',text='',parent=scene) {
@@ -154,7 +153,7 @@
   let scheduled=false;
   function render(){
     scheduled=false;
-    world.style.transform=`translateY(-20px) scale(${state.fit*state.zoom}) rotateX(${state.rx}deg) rotateY(${state.ry}deg) translateY(132px)`;
+    world.style.transform=`translateY(10px) scale(${state.fit*state.zoom}) rotateX(${state.rx}deg) rotateY(${state.ry}deg) translateY(132px)`;
     billboardNodes.forEach(({node,x,y,z})=>place(node,x,y,z,`rotateY(${-state.ry}deg)`));
     mount.classList.toggle('s3-show-facade',state.facade);mount.classList.toggle('s3-hide-walls',!state.walls);
   }
@@ -162,7 +161,7 @@
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
   function clearPreset(){mount.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));mount.querySelector('.s3-view-caption').textContent='자유 시점';}
   function zoom(delta){state.zoom=clamp(state.zoom*delta,.55,2.1);draw();}
-  const presets={overview:{rx:-27,ry:27,zoom:1,text:'전체 공간 · 좌우로 돌려보세요'},front:{rx:-12,ry:0,zoom:1.1,text:'입구에서 · 뒤쪽 계단과 카운터 유지'},plan:{rx:-83,ry:0,zoom:.9,text:'위에서 · 중앙과 양옆 매대의 동선'},letter:{rx:-25,ry:43,zoom:1.1,text:'편지 코너 · 오른쪽 벽면 작성대와 우편함'}};
+  const presets={overview:{rx:-27,ry:27,zoom:1,text:'전체 공간 · 좌우로 돌려보세요'},front:{rx:-12,ry:0,zoom:1.1,text:'입구에서 · 뒤쪽 계단과 카운터 유지'},plan:{rx:-83,ry:0,zoom:1.02,text:'위에서 · 중앙과 양옆 매대의 동선'},letter:{rx:-25,ry:43,zoom:1.2,text:'편지 코너 · 오른쪽 벽면 작성대와 우편함'}};
   function preset(name){Object.assign(state,presets[name]);mount.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));mount.querySelector('.s3-view-caption').textContent=presets[name].text;draw();}
   mount.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>preset(b.dataset.view)));
   mount.querySelectorAll('[data-option]').forEach(input=>input.addEventListener('change',()=>{state[input.dataset.option]=input.checked;draw();}));
@@ -193,6 +192,6 @@
     else if(e.key==='Home'){preset('overview');e.preventDefault();return;}else handled=false;
     if(handled){e.preventDefault();clearPreset();draw();}
   });
-  const resize=()=>{state.fit=Math.min(viewport.clientWidth/805,viewport.clientHeight/770);draw();};
+  const resize=()=>{state.fit=Math.min(viewport.clientWidth/805,viewport.clientHeight/635);draw();};
   new ResizeObserver(resize).observe(viewport);resize();
 })();
