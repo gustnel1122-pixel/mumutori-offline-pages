@@ -17,7 +17,13 @@
 
     const byId = (id) => document.getElementById(id);
     const clone = value => JSON.parse(JSON.stringify(value));
-    const seedTasks = clone(data.tasks).map(task => ({ ...task, dueDate: task.dueDate || '' }));
+    const seedTasks = clone(data.tasks).map(task => ({
+      ...task,
+      dueDate: task.dueDate || '',
+      detail: task.id === 'goods-01'
+        ? '레퍼런스 HTML의 상품 16종은 무무토리가 판매했던 상품입니다. 과일·채소 키링, 동전지갑, 버터 스퀴시 등을 사입 상품 구색과 진열 검토에 함께 반영합니다. 현재 재고·판매 SKU·수량·가격은 확인 후 확정합니다.'
+        : task.detail.replaceAll('편지을', '편지를'),
+    }));
     const seedInventory = clone(data.inventory);
     const taskIds = new Set(data.tasks.map((task) => task.id));
     const inventoryIds = new Set(data.inventory.map((item) => item.id));
