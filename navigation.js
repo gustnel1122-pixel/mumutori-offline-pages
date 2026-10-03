@@ -57,6 +57,8 @@
     };
     window.addEventListener('scroll', () => { if (!frame) frame = requestAnimationFrame(updateActive); }, { passive: true });
     window.addEventListener('resize', updateActive, { passive: true });
+    window.addEventListener('load', updateActive, { once: true });
+    if (document.fonts) document.fonts.ready.then(updateActive);
     updateActive();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });

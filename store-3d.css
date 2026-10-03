@@ -15,4 +15,3 @@
 @media(max-width:480px){.s3-viewport{height:420px}.s3-presets{gap:1px}.s3-presets button{padding:8px 9px}.s3-options{font-size:10px}.s3-zoom{right:12px;bottom:14px}.s3-zoom button{width:32px;height:34px}.s3-view-caption{max-width:53%;line-height:1.5;bottom:17px}.s3-assortment summary span{display:block;margin:4px 0 0 15px}.s3-under p{font-size:10px!important}.s3-legend{font-size:9px;gap:10px}}
 @media(prefers-reduced-motion:reduce){.s3-world{will-change:auto}}
 
-.s3-offscreen .s3-world{display:none}

@@ -195,8 +195,4 @@
   });
   const resize=()=>{state.fit=Math.min(viewport.clientWidth/805,viewport.clientHeight/770);draw();};
   new ResizeObserver(resize).observe(viewport);resize();
-  // Pause the diorama's compositing while the user works in another section.
-  if ('IntersectionObserver' in window) new IntersectionObserver(entries=>{
-    mount.classList.toggle('s3-offscreen', !entries[0].isIntersecting);
-  }, {rootMargin:'180px'}).observe(viewport);
 })();

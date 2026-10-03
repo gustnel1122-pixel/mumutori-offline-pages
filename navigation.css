@@ -4,7 +4,7 @@ body{padding-left:var(--sidebar-width)}
 .project-sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:50;background:#faf5e8;border-right:1px solid #d8ccba;display:flex;flex-direction:column;padding:28px 18px 20px;overflow-y:auto;overscroll-behavior:contain}
 .sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 9px 27px;border-bottom:1px solid #ded2bf;line-height:1.45}
 .sidebar-brand img{width:38px;height:51px;object-fit:contain}
-.sidebar-brand strong{display:block;font-size:19px;letter-spacing:-.8px}
+.sidebar-brand strong{display:block;font-size:15px;letter-spacing:-.6px;white-space:nowrap}
 .sidebar-brand small{display:block;font-size:11px;color:#8a7964;letter-spacing:.6px;margin-top:4px}
 .sidebar-section-label{font-size:10px;letter-spacing:1.5px;color:#978875;font-weight:600;margin:23px 12px 7px}
 .sidebar-nav{display:grid;gap:4px}
