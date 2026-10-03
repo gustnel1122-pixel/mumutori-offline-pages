@@ -23,3 +23,6 @@ body{font-size:16px}.site-header{height:86px}.site-header .wordmark{display:flex
 @media(max-width:900px){.butter-detail{grid-template-columns:1fr}.letter-steps{grid-template-columns:1fr 1fr}.prompt-section .heading-row{flex-wrap:wrap}}
 @media(max-width:640px){.site-header nav{justify-content:flex-start;font-size:13px;gap:7px 16px}.letter-steps,.letter-operation-notes,.prompt-cards{grid-template-columns:1fr}.letter-steps li,.prompt-cards article{padding:20px}.prompt-cards article:first-child{grid-column:auto}.prompt-change-label span{display:block;margin:4px 0 0}.butter-detail{gap:24px}.butter-detail h3{font-size:25px}.prompt-section .heading-row .button{width:100%}}
 @media print{.prompt-change-label,#prompt-change,#prompt-copy-status,.prompt-section button{display:none}.prompt-cards details{display:block}.letter-steps{grid-template-columns:repeat(3,1fr)}}
+
+/* Let responsive images derive height from the gallery ratio. */
+.design-grid img,.spatial-grid img{height:auto}
