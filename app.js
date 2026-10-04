@@ -241,6 +241,7 @@
     }
 
     function commitDefinitions(definitions) {
+      if (cloudLocked) throw new Error('클라우드 기록을 확인한 후 목록을 수정해 주세요.');
       state.definitions = validateDefinitions(definitions);
       const tasks = Object.create(null), inventory = Object.create(null);
       state.definitions.tasks.forEach(task => { tasks[task.id] = Object.hasOwn(state.tasks, task.id) ? state.tasks[task.id] : task.status === 'done'; });
@@ -382,6 +383,7 @@
         const input = node('input'); input.type = 'text'; input.value = category; input.maxLength = 60; input.setAttribute('aria-label', category + ' 분류 이름'); label.append(input);
         const rename = editorButton('이름 변경', '', () => {
           try {
+            if (cloudLocked) return;
             const name = checkedCategory(input.value);
             if (name === category) return;
             if (state.definitions[key].includes(name)) throw new Error('이미 있는 분류입니다. 다른 이름을 입력하거나 분류를 삭제해 합쳐 주세요.');
@@ -407,6 +409,7 @@
     }
 
     function showCategoryRemoval(kind, category) {
+      if (cloudLocked) return;
       const key = categoryKey(kind);
       const count = state.definitions[kind].filter(item => item.category === category).length;
       const editor = dialogForm('분류 삭제 · ' + category, count ? count + '개 항목은 삭제하지 않고 선택한 분류로 옮깁니다.' : '이 분류에는 항목이 없습니다.');
@@ -458,16 +461,19 @@
         } else anchor.before(toolbar);
       });
       const restore = editorButton('가져오기 전 기록 복원', '', () => {
+        if (cloudLocked) { notify('클라우드 기록을 확인한 후 복원해 주세요.'); return; }
         const previous = localStorage.getItem(STORAGE_KEY + '-before-import');
         if (!previous) { notify('이 브라우저에 가져오기 전 백업이 없습니다.'); return; }
         if (!window.confirm('마지막 JSON 가져오기 직전의 목록과 기록으로 복원할까요? 현재 내용이 필요하면 먼저 JSON으로 내보내 주세요.')) return;
         try {
           const next = validateAndMerge(JSON.parse(previous), createDefaults());
           localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); state = next; persistenceBlocked = false;
+          if (cloud) cloud.record(state);
           syncDefinitions(); renderFilters(); renderTasks(); renderInventoryFilters(); renderInventory(); renderEditableFields();
           setSaveStatus('가져오기 전 기록 복원됨', false); notify('가져오기 전 기록으로 복원했습니다.');
         } catch (_) { notify('이전 백업을 읽거나 저장하지 못했습니다. 현재 기록을 JSON으로 먼저 내보내 주세요.'); }
       });
+      restore.id = 'restore-before-import';
       const exportButton = byId('export-button');
       if (exportButton?.parentElement) exportButton.parentElement.append(restore);
     }
@@ -834,13 +840,17 @@
 
     if (window.createOfflineCloud) cloud = window.createOfflineCloud({
       getState: () => state,
-      validate: value => validateAndMerge(value, createDefaults()),
+      validate: (value, base) => validateAndMerge(value, base || createDefaults()),
       blocked: () => persistenceBlocked,
       lock: locked => {
         cloudLocked = locked;
-        document.querySelectorAll('#task-list input, #inventory-list input, #inventory-list select, #project-note, #opening-date, #import-file').forEach(control => { control.disabled = locked; });
+        document.querySelectorAll('#task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked; });
       },
       receive: next => {
+        // Persist before replacing the visible draft: quota errors preserve local work.
+        if (persistenceBlocked) throw new Error('기존 기기 기록을 확인하기 전에는 클라우드 기록으로 바꾸지 않습니다.');
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); }
+        catch (_) { setSaveStatus('기기 백업 실패 · JSON으로 내보내 주세요', true); throw new Error('기기 백업에 실패해 동기화를 중단했습니다. 현재 기록을 JSON으로 내보내 주세요.'); }
         // Preserve the active field and caret during unrelated remote edits.
         const active = document.activeElement;
         const locator = active?.id ? '#' + CSS.escape(active.id) : active?.dataset.inventoryId ? '[data-inventory-id="' + active.dataset.inventoryId + '"][data-field="' + active.dataset.field + '"]' : null;
@@ -857,10 +867,7 @@
           const restored = document.querySelector(locator);
           if (restored) { restored.focus({preventScroll:true}); if (selection && restored.setSelectionRange) restored.setSelectionRange(...selection); }
         }
-        if (!persistenceBlocked) {
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); setSaveStatus('클라우드 기록을 이 기기에 백업함', false); }
-          catch (_) { setSaveStatus('기기 백업 실패 · JSON으로 내보내 주세요', true); throw new Error('기기 백업에 실패해 동기화를 중단했습니다. JSON으로 내보내 주세요.'); }
-        }
+        setSaveStatus('클라우드 기록을 이 기기에 백업함', false);
       }
     });
 

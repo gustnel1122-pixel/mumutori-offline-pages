@@ -26,3 +26,6 @@ body{font-size:16px}.site-header{height:86px}.site-header .wordmark{display:flex
 
 /* Let responsive images derive height from the gallery ratio. */
 .design-grid img,.spatial-grid img{height:auto}
+
+/* Account sync controls */
+.sidebar-cloud-link{display:inline-block;margin-top:7px;color:#6a3906;font-weight:700;text-underline-offset:3px}.cloud-panel{scroll-margin-top:40px}.cloud-actions button{white-space:nowrap}.cloud-actions select{max-width:260px;border:1px solid #d7c7b6;border-radius:6px;padding:8px;background:#fffdf8;color:#684729}.cloud-panel [hidden]{display:none!important}#cloud-status{font-weight:700;overflow-wrap:anywhere}.cloud-actions button:disabled{opacity:.55;cursor:wait}@media(max-width:900px){.cloud-panel{scroll-margin-top:90px}.cloud-actions select{max-width:100%;width:100%}}

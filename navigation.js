@@ -18,7 +18,7 @@
     toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
     backdrop.addEventListener('click', () => setOpen(false, true));
     sidebar.querySelector('[data-close-nav]').addEventListener('click', () => setOpen(false, true));
-    [...links, sidebar.querySelector('.sidebar-brand')].forEach(link => link.addEventListener('click', () => {
+    [...sidebar.querySelectorAll('a[href^="#"]')].forEach(link => link.addEventListener('click', () => {
       if (mobile.matches) {
         setOpen(false);
         const section = document.querySelector(link.hash);
