@@ -1,7 +1,9 @@
-/* Full-state sync only for hub/offlineStoreV1. Server rules decide account access. */
+/* Full-state sync for the shared project identified by the current URL. */
 (function () {
   'use strict';
-  const ROOT = 'hub/offlineStoreV1';
+  const shareKey = new URLSearchParams(window.location.search).get('share') || '';
+  const shared = /^[A-Za-z0-9_-]{43}$/.test(shareKey);
+  const ROOT = shared ? 'hub/offlineStoreShared/' + shareKey : null;
   const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
   const PREFIX = 'mumutori-offline-cloud-v2:';
   const copy = value => JSON.parse(JSON.stringify(value));
@@ -68,11 +70,10 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   window.createOfflineCloud = function (ui) {
-    const login = document.getElementById('cloud-login');
-    const logout = document.getElementById('cloud-logout');
+    const share = document.getElementById('cloud-share');
     const retry = document.getElementById('cloud-retry');
     const status = document.getElementById('cloud-status');
-    if (!login || !logout || !retry || !status) return null;
+    if (!retry || !status) return null;
     let recovery = document.getElementById('cloud-recovery');
     let backup = document.getElementById('cloud-backup');
     if (!recovery || !backup) {
@@ -81,8 +82,8 @@
       backup = element('button', '이전 기록 JSON', 'editor-button'); backup.id = 'cloud-backup'; backup.type = 'button';
       controls.append(recovery, backup); status.insertAdjacentElement('afterend', controls);
     }
-    let auth, db, ref, user, loadPromise, valueHandler, onlineHandler, timer;
-    let generation = 0, ready = false, online = false, sending = false, halted = false, resolving = false;
+    let db, ref, loadPromise, valueHandler, onlineHandler, timer;
+    let generation = 0, ready = false, online = false, sending = false, halted = false, resolving = false, retryOnNetwork = false;
     let baseRaw = null, baseState = copy(ui.getState()), latestRaw, cancelChoice, forceWrite = false, remoteSequence = 0;
     const message = text => { status.textContent = text; };
     function recoveries() {
@@ -113,12 +114,13 @@
     function dirty() { return !same(ui.getState(), baseState); }
     function show() {
       if (!ready || halted || resolving) return;
-      message(sending ? '클라우드 저장 확인 중 · 이 기기에도 백업됨' : dirty() ? (online ? '클라우드 저장 대기 · 이 기기에도 백업됨' : '오프라인 · 변경을 이 기기에 보관 중') : online ? 'Firebase 동기화됨 · 같은 Google 계정으로 이어서 사용' : '오프라인 · 마지막 기록을 이 기기에 보관 중');
+      message(sending ? '클라우드 저장 확인 중 · 이 기기에도 백업됨' : dirty() ? (online ? '클라우드 저장 대기 · 이 기기에도 백업됨' : '오프라인 · 변경을 이 기기에 보관 중') : online ? '공유 기록 동기화됨 · 이 링크를 받은 사람과 함께 사용' : '오프라인 · 마지막 기록을 이 기기에 보관 중');
     }
     function pause(error) {
       halted = true; ready = false; clearTimeout(timer); retry.hidden = false; ui.lock(false);
+      retryOnNetwork = /(?:network|disconnected|unavailable)/i.test(String(error?.code || ''));
       const denied = /permission|PERMISSION|unauthorized/.test(String(error?.code || ''));
-      message(denied ? '이 계정의 저장 권한을 확인해 주세요. 기록은 이 기기에 보관했습니다.' : error?.code ? '클라우드 연결을 확인하지 못했습니다. 기록은 이 기기에 보관했습니다. 다시 연결해 주세요.' : (error?.message || '연결을 중단했습니다. 기록은 이 기기에 보관했습니다.'));
+      message(denied ? '이 공유 링크의 연결 상태를 확인해 주세요. 기록은 이 기기에 보관했습니다.' : error?.code ? '클라우드 연결을 확인하지 못했습니다. 기록은 이 기기에 보관했습니다. 다시 연결해 주세요.' : (error?.message || '연결을 중단했습니다. 기록은 이 기기에 보관했습니다.'));
     }
     async function readRemote() {
       const sequence = remoteSequence;
@@ -179,7 +181,7 @@
         const decision = await choose(local, remote, reason, raw?.version === 1);
         if (stamp !== generation) return;
         if (decision === 'defer') {
-          halted = true; retry.hidden = false;
+          halted = true; retryOnNetwork = false; retry.hidden = false;
           message('클라우드 연결 보류 · 이 기기에 계속 저장합니다. 다시 연결할 때 기록을 선택할 수 있습니다.'); return;
         }
         // Re-read after a potentially long user decision; never adopt a stale choice.
@@ -222,7 +224,7 @@
     }
     function schedule() { clearTimeout(timer); timer = setTimeout(flush, 550); }
     async function flush() {
-      if (!ready || halted || resolving || sending || !online || !user || (!dirty() && !forceWrite)) return;
+      if (!ready || halted || resolving || sending || !online || !shared || (!dirty() && !forceWrite)) return;
       const stamp = generation;
       let sent;
       try { sent = ui.validate(copy(ui.getState())); }
@@ -258,13 +260,9 @@
       ready = false; resolving = false; sending = false; online = false; forceWrite = false; latestRaw = undefined;
       ui.lock(false);
     }
-    async function connect(nextUser) {
-      detach(); user = nextUser; halted = false; retry.hidden = true;
-      login.hidden = Boolean(user); logout.hidden = !user;
-      if (!user) {
-        baseRaw = null; baseState = copy(ui.getState());
-        message('이 기기에 저장 중 · Google로 연결하면 다른 기기에서도 이어집니다.'); return;
-      }
+    async function connect() {
+      if (!shared) return;
+      detach(); halted = false; retryOnNetwork = false; retry.hidden = true;
       const stamp = generation;
       if (ui.blocked()) { pause(new Error('기존 기기 자료를 먼저 JSON으로 확인한 후 다시 연결해 주세요.')); return; }
       ref = db.ref(ROOT); ui.lock(true);
@@ -275,7 +273,8 @@
         const raw = await readRemote();
         if (stamp !== generation) return;
         const initial = decode(raw, ui, ui.getState());
-        if (raw !== null && raw.version === 2 && same(initial, ui.getState())) {
+        if (raw !== null && raw.version === 2 && (same(initial, ui.getState()) || ui.isPristine?.())) {
+          if (!same(initial, ui.getState())) ui.receive(copy(initial));
           baseRaw = copy(raw); baseState = copy(initial); ready = true; ui.lock(false); show();
         } else await resolveDifference(raw, raw === null ? '저장된 클라우드 기록이 없습니다. 현재 기기 기록으로 시작할지 선택해 주세요.' : '이 기기의 기록과 클라우드 기록이 다릅니다. 자동으로 덮어쓰지 않고 이어 쓸 기록을 선택합니다.');
         if (stamp !== generation) return;
@@ -284,49 +283,44 @@
       } catch (error) { if (stamp === generation) pause(error); }
     }
     async function load() {
+      if (!shared) return;
       if (loadPromise) return loadPromise;
-      login.disabled = true; login.textContent = '연결 준비 중…';
+      retry.disabled = true;
+      message('공유 기록을 불러오는 중 · 이 기기의 기록도 보관합니다.');
       loadPromise = (async () => {
         await script('firebase-app-compat.js');
-        await Promise.all([script('firebase-auth-compat.js'), script('firebase-database-compat.js')]);
-        const app = firebase.apps.find(app => app.name === 'mumutori-offline') || firebase.initializeApp(window.OFFLINE_FIREBASE_CONFIG, 'mumutori-offline');
-        auth = app.auth(); db = app.database(); auth.useDeviceLanguage();
-        auth.onAuthStateChanged(value => connect(value).catch(pause), pause);
-        login.disabled = false; login.textContent = 'Google로 연결';
+        await script('firebase-database-compat.js');
+        // This named app intentionally has no Auth SDK or account session.
+        const app = firebase.apps.find(app => app.name === 'mumutori-offline-shared') || firebase.initializeApp(window.OFFLINE_FIREBASE_CONFIG, 'mumutori-offline-shared');
+        db = app.database();
+        await connect();
       })().catch(error => {
-        loadPromise = null; login.disabled = false; login.textContent = '연결 다시 준비';
-        message('Firebase 연결 준비에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요. 기록은 계속 이 기기에 저장합니다.'); throw error;
-      });
+        loadPromise = null;
+        message('공유 연결 준비에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요. 기록은 계속 이 기기에 저장합니다.');
+        retry.hidden = false;
+        throw error;
+      }).finally(() => { retry.disabled = false; });
       return loadPromise;
     }
-    login.addEventListener('click', () => {
-      // SDK is preloaded, so the popup is opened directly in the user's click event.
-      if (!auth) { load().catch(() => {}); return; }
-      login.disabled = true;
-      const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({prompt:'select_account'});
-      auth.signInWithPopup(provider).catch(error => {
-        const descriptions = {
-          'auth/unauthorized-domain':'이 페이지 주소의 Firebase 로그인 허용 설정을 확인해 주세요.',
-          'auth/popup-blocked':'로그인 팝업이 차단되었습니다. 이 사이트의 팝업을 허용한 뒤 다시 눌러 주세요.',
-          'auth/popup-closed-by-user':'로그인을 취소했습니다. 기록은 이 기기에 보관됩니다.',
-          'auth/network-request-failed':'인터넷 연결을 확인해 주세요. 기록은 이 기기에 보관됩니다.'
-        };
-        message(descriptions[error.code] || 'Google 연결을 완료하지 못했습니다. 다시 시도해 주세요. 기록은 이 기기에 보관됩니다.');
-      }).finally(() => { login.disabled = false; });
-    });
-    logout.addEventListener('click', async () => {
-      if (!auth) return;
-      if (sending) { message('서버 저장 결과를 확인 중입니다. 완료 후 연결을 해제해 주세요. 현재 기록은 JSON으로 내보낼 수 있습니다.'); return; }
-      try {
-        if ((dirty() || resolving || halted) && !window.confirm('이 기기의 기록을 보관한 채 클라우드 연결을 해제할까요? 다시 연결할 때 이어 쓸 기록을 선택할 수 있습니다.')) return;
-        preserve(ui.getState(), '연결 해제 전 기기 기록');
-        await auth.signOut();
-      } catch (error) { message(error.code ? '연결 해제를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.' : error.message); }
-    });
+    if (share) {
+      share.hidden = !shared;
+      share.addEventListener('click', async () => {
+        if (!shared) return;
+        const url = new URL(window.location.href);
+        url.hash = '';
+        try {
+          await navigator.clipboard.writeText(url.href);
+          share.textContent = '공유 링크 복사됨';
+          setTimeout(() => { share.textContent = '공유 링크 복사'; }, 2000);
+        } catch (_) {
+          message('주소창의 전체 링크를 복사해 전달해 주세요. 링크를 받은 사람은 같은 기록을 보고 수정할 수 있습니다.');
+        }
+      });
+    }
     retry.addEventListener('click', () => {
+      if (!shared) return;
       if (sending) { show(); return; }
-      if (auth?.currentUser) connect(auth.currentUser).catch(pause);
-      else if (auth) login.click();
+      if (db) connect().catch(pause);
       else load().catch(() => {});
     });
     backup.addEventListener('click', () => {
@@ -337,13 +331,18 @@
       } catch (error) { message(error.message); }
     });
     window.addEventListener('beforeunload', event => {
-      if (user && (sending || (ready && dirty()))) { event.preventDefault(); event.returnValue = ''; }
+      if (shared && (sending || (ready && dirty()))) { event.preventDefault(); event.returnValue = ''; }
     });
-    window.addEventListener('online', () => { if (!auth) load().catch(() => {}); else show(); });
+    window.addEventListener('online', () => {
+      if (shared && !db) load().catch(() => {});
+      else if (shared && retryOnNetwork) connect().catch(pause);
+      else show();
+    });
     try { renderRecoveries(); } catch (_) { pause(new Error('연결 전 백업 목록을 읽지 못했습니다. 현재 기록을 JSON으로 내보낸 뒤 확인해 주세요.')); }
-    load().catch(() => {});
+    if (shared) load().catch(() => {});
+    else { retry.hidden = true; message('공유 링크로 열어 주세요 · 현재 기록은 이 기기에 저장됩니다.'); }
     return {
-      connected: () => Boolean(user && ready && !halted),
+      connected: () => Boolean(shared && ready && !halted),
       pause,
       record() {
         if (ready && !halted && !resolving) { show(); schedule(); }

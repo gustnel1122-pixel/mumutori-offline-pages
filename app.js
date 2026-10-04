@@ -840,6 +840,7 @@
 
     if (window.createOfflineCloud) cloud = window.createOfflineCloud({
       getState: () => state,
+      isPristine: () => JSON.stringify(state) === JSON.stringify(createDefaults()),
       validate: (value, base) => validateAndMerge(value, base || createDefaults()),
       blocked: () => persistenceBlocked,
       lock: locked => {
