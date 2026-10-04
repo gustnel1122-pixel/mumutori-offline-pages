@@ -50,6 +50,7 @@
     let lastImageTrigger = null;
     let cloud = null;
     let cloudLocked = false;
+    let budgetView = null;
     let state = createDefaults();
 
     function createDefaults() {
@@ -62,7 +63,7 @@
           status: INVENTORY_STATUSES.includes(item.status) ? item.status : '검토',
         };
       });
-      return { version: 2, tasks, inventory, note: '', openingDate: '', definitions: {
+      return { version: 2, tasks, inventory, note: '', openingDate: '', budget: {}, definitions: {
         tasks: clone(seedTasks), inventory: clone(seedInventory),
         taskCategories: [...new Set(seedTasks.map(task => task.category))],
         inventoryCategories: [...new Set(seedInventory.map(item => item.category))],
@@ -131,6 +132,7 @@
       if (!isObject(candidate) || ![1, 2].includes(candidate.version)) throw new Error('지원하지 않는 저장 형식입니다.');
       const fields = ['version', 'tasks', 'inventory', 'note', 'openingDate'];
       if (candidate.version === 2) fields.push('definitions');
+      if (Object.hasOwn(candidate, 'budget')) fields.push('budget');
       if (!hasExactKeys(candidate, fields) || !isObject(candidate.tasks) || !isObject(candidate.inventory)) throw new Error('무무토리 프로젝트에서 내보낸 JSON 파일을 선택해 주세요.');
       if (typeof candidate.note !== 'string' || candidate.note.length > MAX_NOTE_LENGTH) throw new Error('메모 형식이나 길이가 올바르지 않습니다.');
       if (typeof candidate.openingDate !== 'string' || !validDate(candidate.openingDate)) throw new Error('오픈 목표일 형식이 올바르지 않습니다.');
@@ -139,7 +141,8 @@
         if (!isObject(value) || !hasExactKeys(value, ['quantity', 'status']) || typeof value.quantity !== 'string' || value.quantity.length > MAX_QUANTITY_LENGTH || !INVENTORY_STATUSES.includes(value.status)) throw new Error('준비물 수량 또는 상태가 올바르지 않습니다.');
       }
       const definitions = candidate.version === 2 ? validateDefinitions(candidate.definitions) : clone(base.definitions);
-      const next = { version: 2, tasks: Object.create(null), inventory: Object.create(null), note: candidate.note, openingDate: candidate.openingDate, definitions };
+      const budget = window.OfflineBudgetState.normalize(candidate.version === 1 && !Object.hasOwn(candidate, 'budget') ? base.budget : candidate.budget);
+      const next = { version: 2, tasks: Object.create(null), inventory: Object.create(null), note: candidate.note, openingDate: candidate.openingDate, definitions, budget };
       definitions.tasks.forEach(task => {
         next.tasks[task.id] = Object.hasOwn(candidate.tasks, task.id) ? candidate.tasks[task.id] : (candidate.version === 1 && Object.hasOwn(base.tasks, task.id) ? base.tasks[task.id] : task.status === 'done');
       });
@@ -550,6 +553,21 @@
         if (task.dueDate) meta.append(node('span', 'task-due' + (!done && task.dueDate < today ? ' task-overdue' : ''), '기한 ' + task.dueDate.replaceAll('-', '.') + (!done && task.dueDate < today ? ' · 지남' : '')));
         info.append(label, meta);
         if (task.detail) info.append(node('p', 'task-detail', task.detail));
+        const referenceValue = window.OFFLINE_TASK_REFERENCES?.[task.id];
+        const references = referenceValue ? (Array.isArray(referenceValue) ? referenceValue : [referenceValue]) : [];
+        if (references.length) {
+          const links = node('p', 'task-detail');
+          references.forEach(reference => {
+            const value = typeof reference === 'string' ? reference : reference.url;
+            if (!/^reference-(administration|exterior|butter|budget)\.html$/.test(value)) return;
+            const titles = {administration:'행정·결제·광고 안내',exterior:'외벽·간판 비교안',butter:'버터 매대 제작안',budget:'가격·예산 산정 근거'};
+            const key = value.replace('reference-', '').split('.')[0];
+            const link = node('a', 'text-link', '참고: ' + (reference.title || titles[key]));
+            link.href = value; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.style.marginRight = '1rem';
+            links.append(link);
+          });
+          info.append(links);
+        }
         const dependencies = (task.dependsOn || []).filter((id) => taskTitles.has(id));
         if (dependencies.length) {
           const remaining = dependencies.filter((id) => !state.tasks[id]);
@@ -618,6 +636,7 @@
       if (!fragment.childNodes.length) fragment.append(node('p', 'empty-state', '조건에 맞는 준비물이 없습니다. 검색어나 분류를 바꿔 보세요.'));
       elements.inventoryList.replaceChildren(fragment);
       renderInventorySummary();
+      budgetView?.render();
     }
 
     function renderInventoryFilters() {
@@ -704,6 +723,7 @@
         if (!inventoryIds.has(id) || input.dataset.field !== 'quantity') return;
         state.inventory[id].quantity = input.value.slice(0, MAX_QUANTITY_LENGTH);
         save();
+        budgetView?.render();
       });
       elements.inventoryList.addEventListener('change', (event) => {
         if (cloudLocked) return;
@@ -746,6 +766,10 @@
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       notify('현재 체크리스트, 준비물, 메모를 JSON 파일로 내보냈습니다.');
+    });
+    byId('copy-backup-button')?.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(JSON.stringify(state, null, 2) + '\n'); notify('목록·메모·예산을 포함한 전체 준비 기록 JSON을 복사했습니다.'); }
+      catch (_) { notify('복사할 수 없습니다. 준비 기록 내보내기를 사용해 주세요.'); }
     });
 
     const importFile = byId('import-file');
@@ -838,6 +862,19 @@
     renderPhases();
     renderEditableFields();
 
+    if (window.createOfflineBudget && byId('budget-dashboard')) budgetView = window.createOfflineBudget({
+      element: byId('budget-dashboard'),
+      getInventory: () => state.definitions.inventory.map(item => ({...item, ...state.inventory[item.id]})),
+      getBudget: () => state.budget || {},
+      onChangeBudget: next => {
+        if (cloudLocked || persistenceBlocked) return false;
+        try { state.budget = window.OfflineBudgetState.normalize(next); return save(); }
+        catch (error) { notify(error.message); budgetView?.render(); return false; }
+      },
+      isLocked: () => cloudLocked || persistenceBlocked,
+    });
+    budgetView?.render();
+
     if (window.createOfflineCloud) cloud = window.createOfflineCloud({
       getState: () => state,
       isPristine: () => JSON.stringify(state) === JSON.stringify(createDefaults()),
@@ -845,6 +882,7 @@
       blocked: () => persistenceBlocked,
       lock: locked => {
         cloudLocked = locked;
+        budgetView?.setLocked(locked || persistenceBlocked);
         document.querySelectorAll('#task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked; });
       },
       receive: next => {
@@ -864,6 +902,7 @@
         if (JSON.stringify(previous.inventory) !== JSON.stringify(next.inventory)) { renderInventory(); renderInventorySummary(); }
         if (previous.note !== next.note && elements.note) elements.note.value = next.note;
         if (previous.openingDate !== next.openingDate) renderEditableFields();
+        if (JSON.stringify(previous.budget) !== JSON.stringify(next.budget)) budgetView?.render();
         if (locator) {
           const restored = document.querySelector(locator);
           if (restored) { restored.focus({preventScroll:true}); if (selection && restored.setSelectionRange) restored.setSelectionRange(...selection); }
@@ -876,6 +915,7 @@
     if (document.modelContext?.registerTool) {
       const lifecycle = new AbortController();
       const register = tool => { try { Promise.resolve(document.modelContext.registerTool(tool, {signal:lifecycle.signal})).catch(() => {}); } catch (_) {} };
+      register({name:'export_offline_project',title:'전체 준비 기록 JSON 읽기',description:'Read the complete current checklist definitions, inventory, note, opening date and budget for backup. No changes are made.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:true},execute:()=>clone(state)});
       register({name:'read_offline_project', title:'무무토리 준비 상태 읽기', description:'Read the visible checklist, supplies, note and opening date, stored in this browser.', inputSchema:{type:'object',properties:{},additionalProperties:false}, annotations:{readOnlyHint:true,untrustedContentHint:true}, execute:() => ({tasks:data.tasks.map(t=>({id:t.id,title:t.title,owner:t.owner,dependsOn:t.dependsOn,done:state.tasks[t.id]})),inventory:data.inventory.map(i=>({id:i.id,name:i.name,...state.inventory[i.id]})),note:state.note,openingDate:state.openingDate,storage:cloud?.connected()?'firebase-and-device':'this-browser-only'})});
       register({name:'set_offline_task_completion', title:'무무토리 할 일 완료 상태 변경', description:'Set one checklist item complete or incomplete, save to this browser.', inputSchema:{type:'object',properties:{id:{type:'string'},done:{type:'boolean'}},required:['id','done'],additionalProperties:false}, annotations:{readOnlyHint:false,untrustedContentHint:false}, execute:input=>{
         if(!isObject(input)||!hasExactKeys(input,['id','done'])||!taskIds.has(input.id)||typeof input.done!=='boolean') throw new Error('올바른 항목과 완료 값을 입력하세요.');
