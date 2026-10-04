@@ -1187,7 +1187,7 @@ window.OFFLINE_COST_DATA = {
       "vat": "10% 포함 추정",
       "shipping": "기본 작업·장비·통행관리 반영; 현장 추가조건 제외",
       "sourceLabel": "외벽 공정별 기획예산 · 실제견적 아님",
-      "sourceUrl": "references/facade.html",
+      "sourceUrl": "reference-exterior.html",
       "sources": [
         {
           "label": "글로벌아바 포맥스 간판 상품 목록",
@@ -1228,7 +1228,7 @@ window.OFFLINE_COST_DATA = {
       "vat": "10% 포함 추정",
       "shipping": "기본 작업·장비·통행관리 반영; 현장 추가조건 제외",
       "sourceLabel": "외벽 공정별 기획예산 · 실제견적 아님",
-      "sourceUrl": "references/facade.html",
+      "sourceUrl": "reference-exterior.html",
       "sources": [
         {
           "label": "글로벌아바 포맥스 간판 상품 목록",
@@ -1265,7 +1265,7 @@ window.OFFLINE_COST_DATA = {
       "vat": "10% 포함 추정",
       "shipping": "기본 작업·장비·통행관리 반영; 현장 추가조건 제외",
       "sourceLabel": "외벽 공정별 기획예산 · 실제견적 아님",
-      "sourceUrl": "references/facade.html",
+      "sourceUrl": "reference-exterior.html",
       "sources": [
         {
           "label": "글로벌아바 포맥스 간판 상품 목록",
@@ -1306,7 +1306,7 @@ window.OFFLINE_COST_DATA = {
       "vat": "10% 포함 추정",
       "shipping": "기본 작업·장비·통행관리 반영; 현장 추가조건 제외",
       "sourceLabel": "외벽 공정별 기획예산 · 실제견적 아님",
-      "sourceUrl": "references/facade.html",
+      "sourceUrl": "reference-exterior.html",
       "sources": [
         {
           "label": "글로벌아바 포맥스 간판 상품 목록",
@@ -1937,7 +1937,7 @@ window.OFFLINE_COST_DATA = {
     },
     {
       "title": "외벽 보수·간판 의사결정",
-      "url": "references/facade.html"
+      "url": "reference-exterior.html"
     },
     {
       "title": "버터 조형 집기 제작 비교",
