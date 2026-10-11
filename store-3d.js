@@ -7,18 +7,18 @@
   if (!mount) return;
   mount.innerHTML = `
     <div class="s3-toolbar" aria-label="공간 시점 선택">
-      <div class="s3-presets"><button type="button" data-view="overview" aria-pressed="true">전체 공간</button><button type="button" data-view="front" aria-pressed="false">입구에서</button><button type="button" data-view="plan" aria-pressed="false">위에서</button><button type="button" data-view="letter" aria-pressed="false">편지 코너</button></div>
+      <div class="s3-presets"><button type="button" data-view="overview" aria-pressed="true">전체 공간</button><button type="button" data-view="front" aria-pressed="false">입구에서</button><button type="button" data-view="plan" aria-pressed="false">위에서</button><button type="button" data-view="keyring" aria-pressed="false">키링 벽</button></div>
       <div class="s3-options"><label><input type="checkbox" data-option="facade"> 전면 간판</label><label><input type="checkbox" data-option="walls" checked> 벽 보기</label></div>
     </div>
     <div class="s3-viewport" tabindex="0" role="application" aria-label="무무토리 공간 3D 보기. 방향키로 회전, 더하기와 빼기로 확대 축소, Home으로 처음 시점. 마우스나 한 손가락으로 돌리고 두 손가락으로 확대할 수 있습니다." aria-describedby="s3-help">
       <div class="s3-grid"></div><canvas class="s3-canvas" aria-hidden="true"></canvas>
       <div class="s3-badge">INTERACTIVE SPACE <span>01</span></div>
-      <div class="s3-floating-note"><i></i>사진 기준 공간 제안 · 치수 미확정</div>
+      <div class="s3-floating-note"><i></i>메인 매장만 · 집기 크기는 제안</div>
       <div class="s3-zoom" aria-label="확대 축소"><button type="button" data-action="in" aria-label="공간 확대">＋</button><button type="button" data-action="out" aria-label="공간 축소">−</button><button type="button" data-action="reset" aria-label="처음 시점으로 돌아가기">↺</button></div>
       <div class="s3-view-caption" aria-live="polite">전체 공간 · 좌우로 돌려보세요</div>
     </div>
-    <div class="s3-under"><p id="s3-help"><strong>드래그해서 회전</strong> · 휠 / 두 손가락으로 확대 · 방향키로 시점 이동</p><span>기존 카운터 + 계단 유지</span></div>
-    <div class="s3-legend"><span><i class="s3-dot s3-dot-butter"></i>버터 매대 3곳</span><span><i class="s3-dot s3-dot-pink"></i>사입 소품 16종</span><span><i class="s3-dot s3-dot-wood"></i>기존 결제 카운터</span><span><i class="s3-dot s3-dot-paper"></i>옆 벽 편지 코너</span></div>
+    <div class="s3-under"><p id="s3-help"><strong>드래그해서 회전</strong> · 휠 / 두 손가락으로 확대 · 방향키로 시점 이동</p><span>기존 카운터 + 계단 유지 · 뒤 통로는 창고(직원만)</span></div>
+    <div class="s3-legend"><span><i class="s3-dot s3-dot-butter"></i>버터 매대 2곳</span><span><i class="s3-dot s3-dot-pink"></i>사입 소품 16종</span><span><i class="s3-dot s3-dot-wood"></i>기존 결제 카운터</span><span><i class="s3-dot s3-dot-paper"></i>오른쪽 거울·키링 벽 · 창가 모듈 테이블</span></div>
     <details class="s3-assortment"><summary>매대에 놓인 상품 보기 <span>레퍼런스의 실제 판매 상품</span></summary><div class="s3-product-list"></div><p>상품 구성과 수량은 배치 예시입니다. 실제 사입 목록은 체크리스트에서 조정해 주세요.</p></details>`;
   // One canvas draws all projected geometry. No CSS 3D compositor layers.
   const viewport = mount.querySelector('.s3-viewport');
@@ -106,9 +106,11 @@
       }else if(cls==='s3-stair-stringer'){
         poly([[0,0],[w,h*.87],[w,h],[0,h*.12]],'#b8a481');line(0,1,w,h*.87,'#867452',2);
       }else if(cls==='s3-passage'){
-        fill(gradient('#aab5b0','#74847e'));c.strokeStyle='#a47d4f';c.lineWidth=9;c.strokeRect(0,0,w,h);line(0,h*.7,w,h*.7,'#c7d0c6',3);
+        fill('#e9dcc0');for(let x=0;x<w;x+=9){c.fillStyle=(x/9)%2?'#dccaa6':'#f1e6cf';c.fillRect(x,0,5,h);}c.strokeStyle='#a47d4f';c.lineWidth=5;c.strokeRect(0,0,w,h);line(0,3,w,3,'#6b4b2c',4);
       }else if(cls==='s3-lampshade')poly([[w*.23,0],[w*.77,0],[w,h],[0,h]],gradient('#caba8c','#fae9b4'));
       else if(cls==='s3-terminal-screen'){fill('#a9b5a0');c.strokeStyle='#292f28';c.lineWidth=3;c.strokeRect(0,0,w,h);}
+      else if(cls==='s3-mirror'){fill(gradient('#eef3f2','#b9c7c6'));line(w*.15,h*.1,w*.55,h*.45,'#ffffffaa',3);line(w*.2,h*.3,w*.5,h*.58,'#ffffff77',2);c.strokeStyle='#ad8652';c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);}
+      else if(cls==='s3-hanger-sign'){fill('#fff2b5');c.strokeStyle='#c7a968';c.lineWidth=1;c.strokeRect(.5,.5,w-1,h-1);text(shape.text,10,'#6d4930');}
       else if(cls==='s3-letter-sheet'||cls==='s3-writing-paper'){
         fill('#fffaf0');c.strokeStyle='#d5c9ac';c.lineWidth=.8;c.strokeRect(0,0,w,h);for(let y=8;y<h-5;y+=6)line(5,y,w-5,y,'#cbb993',.7);
       }else if(cls==='s3-mailbox-face'){
@@ -232,21 +234,18 @@
   }
   butter(-11,49,226,142,82);
   butter(-213,12,64,226,72);
-  butter(213,39,64,280,72);
   // Small display risers leave most of the butter top visible.
   box(-42,85,21,120,6,46,'paper');box(-209,75,-34,49,6,89,'paper');
-  // Side-wall letter writing zone (not on the rear counter).
-  box(211,81,121,42,14,31,'typewriter');
-  box(211,85,106,42,14,8,'typewriter');
-  box(211,81,136,41,5,18,'keyboard');
-  plane('s3-letter-sheet',211,107,109,29,36,'rotateX(-8deg)');
-  plane('s3-writing-paper',213,72.8,189,35,45,'rotateX(90deg)');
-  box(231,75,185,2,2,29,'bottle');
-  // Mailbox is mounted to the right wall, facing into the room.
-  box(244,139,148,19,53,38,'paper');
-  plane('s3-mailbox-face',233.5,141,148,35,45,'rotateY(-90deg)','POST');
-  plane('s3-letter-sign',244,210,111,114,42,'rotateY(-90deg)','내일 보내는 편지',walls);
-  label('편지 작성 · 우편함',204,172,202,'s3-label-letter');
+  // Right wall: existing mirror + keyring hanger (no letter corner — owner decision 2026-10-11).
+  plane('s3-mirror',249,126,-150,105,214,'rotateY(-90deg)');
+  for(const y of [178,128]){box(246,y,110,4,4,170,'brass');for(let i=0;i<7;i++)box(242,y-5,40+i*23,2,10,2,'brass');}
+  box(247,200,110,4,4,176,'darkwood');
+  plane('s3-hanger-sign',250,214,110,96,24,'rotateY(-90deg)','KEYRING',walls);
+  label('거울 · 키링 행거',214,232,30);
+  // Two small window module tables (560×370 in the survey sheet).
+  for(const x of [40,150]){box(x,28,272,69,56,46,'cream');box(x,57,272,71,3,48,'wood');}
+  label('창가 모듈 테이블',95,96,300);
+  label('창고·작업실 (직원만)',-193,190,-290,'s3-label-dark');
   // Track lighting: slim rails rather than a roof, keeping the cutaway view readable.
   box(-218,282,-71,4,4,420,'rail');box(213,282,-65,4,4,440,'rail');
   for(const x of [-218,213])for(const z of [-232,-104,40,164]){
@@ -267,7 +266,7 @@
   box(222,48,351,3,90,3,'brass');box(222,3,351,48,5,30,'brass');
   plane('s3-standing-banner',222,74,354,50,80,'','작고 귀여운\n것들의 가게\n\nmumutori');
   const products=[['버터 스틱 말랑이',43],['딸기 동전지갑',44],['군고구마 펜던트',45],['마늘 키링',46],['머쉬룸 펜던트',47],['가지 동전지갑',48],['당근 동전지갑',49],['레몬 키링',50],['생강 키링',51],['고추 키링',52],['감자 키링',53],['토마토 카드 홀더',54],['노란 감자 동전지갑',55],['찹쌀 경단 동전지갑',56],['토스트 동전지갑',57],['식물 모양 키링',58]];
-  const positions=[[-71,88,18,40],[-17,88,18,38],[36,82,21,37],[-63,82,76,37],[-12,82,75,39],[47,82,80,42],[-216,78,-57,35],[-211,78,-7,35],[-212,72,52,35],[-214,72,98,34],[211,72,-67,33],[213,72,-19,35],[208,72,32,35],[15,82,-2,30],[-218,72,-84,30],[68,82,36,32]];
+  const positions=[[-71,88,18,40],[-17,88,18,38],[36,82,21,37],[-63,82,76,37],[-12,82,75,39],[47,82,80,42],[-216,78,-57,35],[-211,78,-7,35],[-212,72,52,35],[-214,72,98,34],[238,145,63,30],[238,145,132,30],[238,95,98,32],[150,59,272,30],[-218,72,-84,30],[40,59,272,32]];
   products.forEach(([name,num],i)=>{
     const [x,base,z,size]=positions[i];
     const item=plane('s3-product',x,base+size*.5,z,size,size);
@@ -280,7 +279,7 @@
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
   function clearPreset(){mount.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));mount.querySelector('.s3-view-caption').textContent='자유 시점';}
   function zoom(delta){state.zoom=clamp(state.zoom*delta,.55,2.1);draw();}
-  const presets={overview:{rx:-27,ry:27,zoom:1,text:'전체 공간 · 좌우로 돌려보세요'},front:{rx:-12,ry:0,zoom:1.1,text:'입구에서 · 뒤쪽 계단과 카운터 유지'},plan:{rx:-83,ry:0,zoom:.9,text:'위에서 · 중앙과 양옆 매대의 동선'},letter:{rx:-25,ry:43,zoom:1.1,text:'편지 코너 · 오른쪽 벽면 작성대와 우편함'}};
+  const presets={overview:{rx:-27,ry:27,zoom:1,text:'전체 공간 · 좌우로 돌려보세요'},front:{rx:-12,ry:0,zoom:1.1,text:'입구에서 · 뒤쪽 계단과 카운터 유지'},plan:{rx:-83,ry:0,zoom:.9,text:'위에서 · 중앙 버터 테이블과 벽면 진열의 동선'},keyring:{rx:-20,ry:50,zoom:1.15,text:'키링 벽 · 오른쪽 거울과 키링 행거'}};
   function preset(name){Object.assign(state,presets[name]);mount.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));mount.querySelector('.s3-view-caption').textContent=presets[name].text;draw();}
   mount.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>preset(b.dataset.view)));
   mount.querySelectorAll('[data-option]').forEach(input=>input.addEventListener('change',()=>{state[input.dataset.option]=input.checked;draw();}));
