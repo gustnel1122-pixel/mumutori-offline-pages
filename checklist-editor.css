@@ -60,3 +60,8 @@
 .buylist-status[data-status="견적 요청"],.buylist-status[data-status="발주"]{background:var(--soft);border-color:var(--butter)}
 .buylist-status[data-status="준비 완료"]{background:#e3ead9;border-color:#b9c7a8;color:var(--green)}
 @media(max-width:760px){.buylist-row{grid-template-columns:1fr;padding:18px 0}.buylist-side{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between}}
+
+.buylist-ink{margin-top:8px;padding:8px 12px;border-left:3px solid var(--butter);background:var(--white);font-size:14px;line-height:1.75}
+.buylist-ink strong{font-weight:600;color:var(--accent)}
+.buylist-ink-note{color:var(--muted);font-size:13px}
+.buylist-group{scroll-margin-top:90px}

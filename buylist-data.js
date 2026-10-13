@@ -1,11 +1,12 @@
 // 브랜딩·포장 구매 목록 — 공유 준비표(준비물 분류 '브랜딩·포장 구매')에서 옮긴 공개용 사본.
 // 판매처에 공개된 이름·주소·표시 가격만 담는다. 진행 상태는 공유 링크로 열면 준비표 값을 따르고, 여기 값은 동기화 때 맞춘다.
 window.OFFLINE_BUYLIST = {
- "updated": "2026-10-13 11:09",
+ "updated": "2026-10-13 12:35",
  "items": [
   {
    "id": "buy-stamp-110",
    "group": "도장",
+   "groupKey": "stamp",
    "name": "고고스탬프 대형 로고 만년스탬프 46×72mm (종이·박스·쇼핑백용)",
    "tag": "추천",
    "use": "종이 헤더·크라프트 쇼핑백·택배박스에 찍는 브랜드 도장(잉크 내장, 최대 인쇄 72×46mm).",
@@ -14,17 +15,29 @@ window.OFFLINE_BUYLIST = {
    "note": "주문하려면 단색 로고 원본이 필요합니다. 비닐에는 쓰지 않습니다. 구매는 사장님.",
    "price": "29,000원 + 배송 3,000원",
    "stage": "후보",
-   "status": "검토"
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 →",
+    "links": [
+     {
+      "label": "고고 전용 리필 잉크",
+      "href": "https://gogostamp.com/product/만년스탬프용리필잉크/38/"
+     }
+    ],
+    "more": false,
+    "note": "브라운은 없습니다. 주문할 때 고르는 색 중 주황(카라멜 쪽)·노랑(버터 쪽)이 가깝습니다."
+   }
   },
   {
    "id": "buy-stamp-110-refill",
    "group": "도장",
+   "groupKey": "stamp",
    "name": "고고 만년스탬프 리필 잉크 5cc (위 도장과 같은 계열)",
    "tag": "같이 주문",
    "use": "종이용 도장 잉크 보충.",
    "link": "https://gogostamp.com/product/만년스탬프용리필잉크/38/",
    "logo": "불필요",
-   "note": "도장과 같은 계열 전용 잉크만 씁니다. 비닐용 속건 잉크를 종이용 도장에 넣지 않습니다.",
+   "note": "도장과 같은 계열 전용 잉크만 씁니다. 비닐용 속건 잉크를 종이용 도장에 넣지 않습니다. · 잉크: 색은 검정·빨강·청색·주황·녹색·핑크·노랑(브라운 없음). 도장과 같은 색으로 고릅니다.",
    "price": "2,000원부터",
    "stage": "후보",
    "status": "검토"
@@ -32,6 +45,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-stamp-414",
    "group": "도장",
+   "groupKey": "stamp",
    "name": "고고 비닐·코팅지용 속건 만년스탬프 (OPP 봉투용)",
    "tag": "포장 방식 결정 뒤",
    "use": "OPP 봉투에 직접 찍는 도장(포장 시안 ②). 포장 방식을 정한 뒤 주문.",
@@ -40,11 +54,23 @@ window.OFFLINE_BUYLIST = {
    "note": "받으면 실제 OPP 봉투에 찍어 말린 뒤 문지르기·구기기 시험부터 합니다.",
    "price": "약 45,000원 + 배송 3,000원",
    "stage": "후보",
-   "status": "검토"
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 → 주문할 때 고르는 잉크뿐(검정·청색·빨강, 브랜드 색 없음). OPP에 브라운은 고무도장 +",
+    "links": [
+     {
+      "label": "스테이즈온 Timber Brown",
+      "href": "https://www.coupang.com/vp/products/6126295156"
+     }
+    ],
+    "more": false,
+    "note": ""
+   }
   },
   {
    "id": "buy-stamp-pica-wood",
    "group": "도장",
+   "groupKey": "stamp",
    "name": "피카스탬프 원목 고무스탬프 (손잡이 없음, 크기 자유)",
    "tag": "대안",
    "use": "우드 감성 고무 도장. 크기에 따라 가격이 달라집니다(30×30 ~ 80×40mm). 잉크 패드는 따로 삽니다.",
@@ -53,11 +79,27 @@ window.OFFLINE_BUYLIST = {
    "note": "제작 5~7일(10/12 조사).",
    "price": "28,000~38,000원 (+배송)",
    "stage": "후보",
-   "status": "검토"
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 →",
+    "links": [
+     {
+      "label": "버사파인 클레어 ACORN(종이·크라프트)",
+      "href": "https://smartstore.naver.com/julietsletters/products/11001576332"
+     },
+     {
+      "label": "스테이즈온 Timber Brown(OPP·비닐)",
+      "href": "https://www.coupang.com/vp/products/6126295156"
+     }
+    ],
+    "more": true,
+    "note": ""
+   }
   },
   {
    "id": "buy-stamp-pica-gold",
    "group": "도장",
+   "groupKey": "stamp",
    "name": "피카스탬프 골드 손잡이 스탬프 60×40mm",
    "tag": "대안",
    "use": "손잡이가 예쁜 고무 도장(잉크 패드 별도).",
@@ -66,11 +108,27 @@ window.OFFLINE_BUYLIST = {
    "note": "손잡이 모양과 찍히는 품질은 별개입니다.",
    "price": "49,000원 + 배송 3,000원",
    "stage": "후보",
-   "status": "검토"
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 →",
+    "links": [
+     {
+      "label": "버사파인 클레어 ACORN(종이·크라프트)",
+      "href": "https://smartstore.naver.com/julietsletters/products/11001576332"
+     },
+     {
+      "label": "스테이즈온 Timber Brown(OPP·비닐)",
+      "href": "https://www.coupang.com/vp/products/6126295156"
+     }
+    ],
+    "more": true,
+    "note": ""
+   }
   },
   {
    "id": "buy-stamp-r532",
    "group": "도장",
+   "groupKey": "stamp",
    "name": "도장파 샤이니 R532 자동스탬프 32mm (작은 헤더 카드용)",
    "tag": "대안",
    "use": "작은 헤더 카드에 반복해서 찍는 자동 도장.",
@@ -79,11 +137,163 @@ window.OFFLINE_BUYLIST = {
    "note": "원형이라 가로로 긴 로고는 작게 찍힙니다.",
    "price": "17,600원 + 배송 3,000원",
    "stage": "후보",
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 →",
+    "links": [
+     {
+      "label": "R532 교체 패드",
+      "href": "https://www.coupang.com/vp/products/6930698258"
+     }
+    ],
+    "more": false,
+    "note": "청보라·검정·빨강·초록뿐이라 브랜드 색은 없습니다."
+   }
+  },
+  {
+   "id": "buy-ink-vfc-acorn",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "츠키네코 버사파인 클레어 ACORN — 브라운 잉크 패드 (종이·크라프트용)",
+   "tag": "추천 · 종이용",
+   "use": "고무도장(피카스탬프)으로 종이·크라프트 헤더·카드·택에 진한 브라운으로 찍기. 색 이름이 ACORN(도토리)입니다.",
+   "link": "https://smartstore.naver.com/julietsletters/products/11001576332",
+   "logo": "",
+   "note": "옵션에서 VF-CLA-453 ACORN 선택. 더 어두운 갈색은 452 PINECONE, 카라멜 쪽은 451 FALLEN LEAVES. 패드 76×35mm. 판매 글에 크라프트 종이 사용 가능. 찍고 바로 겹치지 말고 마르는지 확인.",
+   "price": "8,800원 + 배송 3,300원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-timber",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "츠키네코 스테이즈온 Timber Brown — 브라운 잉크 패드 (OPP·코팅지·비닐용)",
+   "tag": "추천 · 비닐용",
+   "use": "고무도장으로 OPP 봉투·코팅지·비닐에 진한 브라운으로 찍기(유성, 빨리 마름).",
+   "link": "https://www.coupang.com/vp/products/6126295156",
+   "logo": "",
+   "note": "SZ-41 Timber Brown. 쿠팡 내일 도착(10/13 화면). 뚜껑을 안 닫으면 금방 마릅니다. 고무판은 전용 클리너로 닦습니다. 실제 OPP 봉투에 찍어 말린 뒤 문지르기·구기기 시험부터.",
+   "price": "9,340원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-cleaner",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "스테이즈온 전용 클리너 (유성 잉크 닦는 용)",
+   "tag": "같이 주문 · 스테이즈온 쓸 때",
+   "use": "스테이즈온(유성) 잉크를 쓴 고무판을 닦는 전용 클리너.",
+   "link": "https://www.coupang.com/vp/products/6726839964",
+   "logo": "",
+   "note": "스테이즈온을 살 때만 같이. 버사파인·메멘토 패드에는 필요 없습니다.",
+   "price": "7,500원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-memento",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "츠키네코 메멘토 Rich Cocoa — 작은 브라운 패드 (값싸게·빨리 마르게)",
+   "tag": "대안 · 종이용",
+   "use": "고무도장으로 종이에 찍는 수성 염료 패드. 값이 싸고 빨리 마릅니다.",
+   "link": "https://smartstore.naver.com/julietsletters/products/4154355739",
+   "logo": "",
+   "note": "옵션에서 MD-800 Rich Cocoa(진한 브라운). 카라멜은 MD-801 Potter's Clay와 MD-802 Peanut Brittle, 아주 진한 갈색은 MD-808 Espresso Truffle. 버터 쪽 MD-100 Dandelion과 MD-103 Cantaloupe는 흰 종이에서만 보입니다. 패드가 24×39mm로 작아 60mm 도장은 여러 번 두드려 묻힙니다. 크라프트에서는 색이 가라앉고 물에 번집니다.",
+   "price": "4,500원 + 배송 3,300원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-versacraft-choco",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "츠키네코 버사크래프트 대 Chocolate — 큰 브라운 패드 (박스·쇼핑백용)",
+   "tag": "대안 · 큰 면",
+   "use": "고무도장으로 박스·쇼핑백처럼 큰 면에 찍기. 패드가 커서 60×40mm 도장을 한 번에 묻히기 좋습니다.",
+   "link": "https://www.coupang.com/vp/products/73875471",
+   "logo": "",
+   "note": "VK-154 Chocolate. 쿠팡 내일 도착(10/13 화면). 판매 글은 '패브릭 잉크'라 종이에서의 발색·건조는 찍어 보고 확인.",
+   "price": "13,400원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-kr-pad",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "국내산 스탬프패드 10×7cm 갈색·황색 (나노)",
+   "tag": "대안 · 큰 패드",
+   "use": "고무도장용 국산 큰 패드. 갈색은 진한 브라운 쪽, 황색은 버터와 카라멜 사이.",
+   "link": "https://www.coupang.com/vp/products/83849067",
+   "logo": "",
+   "note": "옵션에서 색 선택. 잉크 성질(수성·유성)과 실제 색은 판매 글에서 확인하지 못했습니다.",
+   "price": "4,500원 + 배송 3,000원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-midi",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "츠키네코 스테이즈온 미디 Ganache·Spiced Chai (OPP·비닐용 다른 브라운)",
+   "tag": "대안 · 비닐용",
+   "use": "OPP·비닐에 찍는 유성 패드의 다른 색. Ganache는 어두운 초콜릿, Spiced Chai는 카라멜.",
+   "link": "https://smartstore.naver.com/julietsletters/products/11001569113",
+   "logo": "",
+   "note": "옵션에서 SZ-MID-44 Ganache 또는 SZ-MID-45 Spiced Chai 선택. 전용 클리너로 닦습니다.",
+   "price": "6,500원 + 배송 3,300원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-pigment",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "스테이즈온 피그먼트 SNOWFLAKE — 크라프트 위에 크림색으로 찍는 불투명 패드",
+   "tag": "대안 · 크림색",
+   "use": "갈색 크라프트·비닐 위에 버터 크림처럼 보이게 찍는 불투명 흰색 잉크.",
+   "link": "https://smartstore.naver.com/julietsletters/products/11001570422",
+   "logo": "",
+   "note": "옵션에서 SZ-PIG-001 SNOWFLAKE. 불투명 브라운은 041 C.BROWN, 노랑은 091 LEMON DROP. 패드 76×35mm. 비닐에서는 번지지 않게 연습이 필요하다는 후기가 있습니다. 버터 노랑 잉크는 크라프트에서 거의 안 보여 이 방법을 씁니다.",
+   "price": "8,800원 + 배송 3,300원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-r532-pad",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "샤이니 R532 교체 패드 (자동스탬프 리필)",
+   "tag": "브랜드 색 없음",
+   "use": "샤이니 R532 자동스탬프의 교체 패드.",
+   "link": "https://www.coupang.com/vp/products/6930698258",
+   "logo": "",
+   "note": "색은 청보라·검정·빨강·초록뿐이라 브랜드 브라운은 없습니다. 작은 카드에 브라운을 원하면 작은 고무도장(피카 30×30mm)에 브라운 패드를 쓰는 편이 맞습니다.",
+   "price": "3,400~3,990원 + 배송 3,000원",
+   "stage": "후보",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-wax-pearlbrown",
+   "group": "도장 잉크",
+   "groupKey": "ink",
+   "name": "실링 왁스 비즈 100개 펄브라운 (실링 인장용 — 잉크 대신 왁스)",
+   "tag": "실링 인장용",
+   "use": "실링왁스 인장에 녹여 쓰는 왁스. 펄브라운은 카라멜과 브라운 사이.",
+   "link": "https://www.coupang.com/vp/products/6550662114",
+   "logo": "",
+   "note": "쿠팡 내일 도착(10/13 화면). 버터·크림색 왁스는 찾지 못했습니다. 인장 판매처에 왁스가 포함되는지와 색부터 판매 글에서 확인.",
+   "price": "2,400원",
+   "stage": "후보",
    "status": "검토"
   },
   {
    "id": "buy-pack-opp-s",
    "group": "포장재 시험 묶음",
+   "groupKey": "pack",
    "name": "OPP 접착 봉투 S 10×15+4cm 200개 (키링·집게핀용)",
    "tag": "포장재 시험 묶음",
    "use": "키링·집게핀 같은 작은 상품 개별 포장(두께 0.04mm).",
@@ -97,6 +307,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-pack-opp-mlxl",
    "group": "포장재 시험 묶음",
+   "groupKey": "pack",
    "name": "OPP 접착 봉투 M·L·XL 각 200장 (한 판매처)",
    "tag": "포장재 시험 묶음",
    "use": "M 15×18+4(말랑이·봉제 키링), L 18×25+4, XL 20×30+4(작은 인형·지갑)를 실물로 대 보는 용도.",
@@ -110,6 +321,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-pack-opp-4060",
    "group": "포장재 시험 묶음",
+   "groupKey": "pack",
    "name": "큰 인형용 OPP 봉투 40×60cm 100개",
    "tag": "포장재 시험 묶음",
    "use": "목 긴 동물 같은 큰 인형의 먼지 막이 포장.",
@@ -123,6 +335,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-pack-kraft-a4",
    "group": "포장재 시험 묶음",
+   "groupKey": "pack",
    "name": "크라프트지 250g A4 100매 (종이 헤더용)",
    "tag": "포장재 시험 묶음",
    "use": "잘라서 반 접는 종이 헤더(포장 시안 ①). A4 한 장에 100×100mm 헤더 4개가 나옵니다.",
@@ -136,6 +349,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-pack-stapler",
    "group": "포장재 시험 묶음",
+   "groupKey": "pack",
    "name": "스테이플러 10호 + 리필침 세트",
    "tag": "포장재 시험 묶음",
    "use": "종이 헤더를 봉투에 고정.",
@@ -149,6 +363,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-pack-tape",
    "group": "포장재 시험 묶음",
+   "groupKey": "pack",
    "name": "양면테이프 10mm×10m 20개입",
    "tag": "포장재 시험 묶음",
    "use": "스테이플러 대신 헤더를 붙이거나 받침 종이를 고정.",
@@ -162,6 +377,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-sticker-kraft",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "로고 크라프트 스티커 원형 30mm 100매 (주문제작)",
    "tag": "추천",
    "use": "OPP 봉투 봉인·쇼핑백 여밈에 한 장씩. 갈색 종이에 갈색 선 도토리가 그대로 어울립니다.",
@@ -175,6 +391,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-sticker-bulk",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "로고 원형 스티커 40·45mm 500~1,000개 (주문제작)",
    "tag": "대안",
    "use": "장당 값이 가장 싼 로고 스티커.",
@@ -188,6 +405,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-tape-kraft",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "크라프트 종이 박스테이프 무광 48mm×40m 5개",
    "tag": "추천",
    "use": "택배 상자 봉함. 비닐 광택이 없는 갈색 종이라 크라프트 상자와 한 톤입니다.",
@@ -201,6 +419,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-tape-logo",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "로고 인쇄 크라프트 박스테이프 6개 (소량 주문제작)",
    "tag": "대안",
    "use": "상자를 여는 순간부터 도토리가 보이는 테이프.",
@@ -214,6 +433,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-bag-kraft",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "크라프트 종이 쇼핑백 100매 (소·중소·중 규격 선택)",
    "tag": "추천",
    "use": "무지 크라프트 쇼핑백 앞면 가운데에 도장 하나. 소 220×90×280",
@@ -227,6 +447,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-bag-fast",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "크라프트 쇼핑백 소 22×8×28cm 100개 (급할 때)",
    "tag": "대안",
    "use": "같은 무지 크라프트 쇼핑백. 내일 받아야 할 때.",
@@ -240,6 +461,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-card-blank",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "무지 크라프트 카드 90×52mm 100매",
    "tag": "추천",
    "use": "도장 + 손글씨 한 줄 감사카드. 인쇄 카드보다 '편지 곁의 소품상점'에 잘 맞습니다.",
@@ -253,6 +475,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-card-print",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "감사 미니카드 인쇄 100매 (주문제작)",
    "tag": "대안",
    "use": "도토리와 인사말이 인쇄돼 오는 카드. 손이 덜 갑니다.",
@@ -266,6 +489,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-twine-jute",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "포장 마끈 3mm×100m (황마)",
    "tag": "추천",
    "use": "바구니·라탄 상자·택을 묶는 기본 끈.",
@@ -279,6 +503,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-twine-raffia",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "라피아 종이끈 5mm×100m (연미색·진미색)",
    "tag": "대안",
    "use": "버터색에 가까운 납작한 종이끈. 리본처럼 묶으면 선물 느낌이 납니다.",
@@ -292,6 +517,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-tag-blank",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "무지 크라프트 택 4×7cm 100개",
    "tag": "추천",
    "use": "가격·이름을 손으로 적는 택. 마끈으로 묶어 진열.",
@@ -305,6 +531,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-tag-print",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "크라프트 종이택 인쇄 100매 (모양 택 주문제작)",
    "tag": "대안",
    "use": "도토리가 인쇄된 모양 택(원형·육각·구름 등). 인형·키링에 달면 브랜드 상품처럼 보입니다.",
@@ -318,6 +545,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-tissue",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "색화지(습자지) 4절 아이보리 200장",
    "tag": "추천",
    "use": "상품을 한 번 감싸는 버터색 속지.",
@@ -331,6 +559,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-filler",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "종이 채움재(쵸핑지) 베이지 500g",
    "tag": "대안",
    "use": "바구니·선물 상자 바닥에 까는 구겨진 종이 채움재.",
@@ -344,6 +573,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-paperbag",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "크라프트 각대봉투 소 120×60×220mm 200개 (빵집 종이봉투)",
    "tag": "추천",
    "use": "작은 소품을 담아 주는 빵집 종이봉투. 버터·베이커리 콘셉트와 맞습니다.",
@@ -357,6 +587,7 @@ window.OFFLINE_BUYLIST = {
   {
    "id": "buy-mood-waxseal",
    "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
    "name": "실링왁스 커스텀 인장 원형 25mm (주문제작)",
    "tag": "대안",
    "use": "편지 봉인용 도토리 인장. 레터서비스·편지 세트 포장에.",
@@ -365,7 +596,18 @@ window.OFFLINE_BUYLIST = {
    "note": "영업일 7일 이내 발송. 손잡이·왁스 포함 여부는 판매 글에서 확인. 10/16까지 주문하면 오픈에 여유. · 로고: 가는 선은 뭉개질 수 있어 단순한 도안이 유리",
    "price": "30,000원 + 배송 3,000원",
    "stage": "후보",
-   "status": "검토"
+   "status": "검토",
+   "ink": {
+    "lead": "이 인장엔 →",
+    "links": [
+     {
+      "label": "펄브라운 실링 왁스 비즈",
+      "href": "https://www.coupang.com/vp/products/6550662114"
+     }
+    ],
+    "more": false,
+    "note": "잉크가 아니라 왁스를 녹여 찍습니다."
+   }
   }
  ]
 };

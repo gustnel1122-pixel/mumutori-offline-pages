@@ -616,6 +616,7 @@
       if (!list || !source || !Array.isArray(source.items)) return;
       const labels = { '검토': '후보', '견적 요청': '시안·견적 요청', '발주': '주문함·제작 중', '준비 완료': '도착·시험 끝' };
       const counts = { '검토': 0, '견적 요청': 0, '발주': 0, '준비 완료': 0 };
+      const safeHref = (value) => { try { const parsed = new URL(value); if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.href; } catch (_) {} return null; };
       const fragment = document.createDocumentFragment();
       let groupName = null, groupBody = null, groupCount = null, liveCount = 0;
       source.items.forEach((item) => {
@@ -628,6 +629,7 @@
         if (item.group !== groupName) {
           groupName = item.group;
           const group = node('div', 'buylist-group');
+          if (/^[a-z]+$/.test(item.groupKey || '')) group.id = 'buylist-' + item.groupKey;
           const heading = node('h3', '', groupName);
           groupCount = node('small', '', '');
           heading.append(groupCount);
@@ -640,8 +642,7 @@
         row.classList.toggle('buylist-done', status === '준비 완료');
         const info = node('div', 'buylist-info');
         const title = node('h4', 'buylist-name');
-        let href = null;
-        try { const parsed = new URL(item.link); if (parsed.protocol === 'https:' || parsed.protocol === 'http:') href = parsed.href; } catch (_) {}
+        const href = safeHref(item.link);
         if (href) {
           const link = node('a', 'buylist-link', item.name);
           link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
@@ -650,6 +651,28 @@
         info.append(title);
         if (item.use) info.append(node('p', 'buylist-use', item.use));
         if (item.note) info.append(node('p', 'buylist-memo', item.note));
+        // 어떤 도장에 어떤 잉크인지: '이 도장엔 → ○○ 잉크'(판매처 링크, 새 창)
+        if (item.ink && Array.isArray(item.ink.links)) {
+          const line = node('p', 'buylist-ink');
+          line.append(node('strong', '', item.ink.lead || '이 도장엔 →'));
+          item.ink.links.forEach((entry, index) => {
+            line.append(document.createTextNode(index ? ' · ' : ' '));
+            const inkHref = safeHref(entry.href);
+            if (inkHref) {
+              const inkLink = node('a', 'buylist-link', entry.label);
+              inkLink.href = inkHref; inkLink.target = '_blank'; inkLink.rel = 'noopener noreferrer';
+              line.append(inkLink);
+            } else line.append(document.createTextNode(String(entry.label || '')));
+          });
+          if (item.ink.more) {
+            line.append(document.createTextNode(' · '));
+            const jump = node('a', 'buylist-link', '다른 잉크 보기 ↓');
+            jump.href = '#buylist-ink';
+            line.append(jump);
+          }
+          if (item.ink.note) line.append(node('span', 'buylist-ink-note', ' ' + item.ink.note));
+          info.append(line);
+        }
         const meta = node('div', 'task-meta');
         if (item.tag) meta.append(node('span', 'tag', item.tag));
         if (item.logo) meta.append(node('span', 'tag' + (item.logo === '필요' ? ' tag-logo' : ''), '로고 ' + item.logo));
