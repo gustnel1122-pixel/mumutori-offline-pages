@@ -609,9 +609,75 @@
       renderProgress();
     }
 
+    // 브랜딩·포장 구매 목록: 공개용 사본(buylist-data.js)을 보여 주고, 지금 열린 준비표에 같은 항목이 있으면 그 상태를 따른다(화면 표시만 — 저장 내용은 그대로).
+    function renderBuyList() {
+      const list = byId('buylist-list');
+      const source = window.OFFLINE_BUYLIST;
+      if (!list || !source || !Array.isArray(source.items)) return;
+      const labels = { '검토': '후보', '견적 요청': '시안·견적 요청', '발주': '주문함·제작 중', '준비 완료': '도착·시험 끝' };
+      const counts = { '검토': 0, '견적 요청': 0, '발주': 0, '준비 완료': 0 };
+      const fragment = document.createDocumentFragment();
+      let groupName = null, groupBody = null, groupCount = null, liveCount = 0;
+      source.items.forEach((item) => {
+        const record = inventoryIds.has(item.id) ? state.inventory[item.id] : null;
+        if (record) liveCount += 1;
+        const status = record && INVENTORY_STATUSES.includes(record.status) ? record.status : item.status;
+        const first = record ? String(record.quantity || '').split(' · ')[0].trim() : String(item.stage || '');
+        const stage = /\d[\d,]*\s*원/.test(first) ? '' : first;
+        if (status in counts) counts[status] += 1;
+        if (item.group !== groupName) {
+          groupName = item.group;
+          const group = node('div', 'buylist-group');
+          const heading = node('h3', '', groupName);
+          groupCount = node('small', '', '');
+          heading.append(groupCount);
+          groupBody = node('div', 'buylist-rows');
+          group.append(heading, groupBody);
+          fragment.append(group);
+        }
+        groupCount.textContent = (groupBody.childNodes.length + 1) + '개';
+        const row = node('article', 'buylist-row');
+        row.classList.toggle('buylist-done', status === '준비 완료');
+        const info = node('div', 'buylist-info');
+        const title = node('h4', 'buylist-name');
+        let href = null;
+        try { const parsed = new URL(item.link); if (parsed.protocol === 'https:' || parsed.protocol === 'http:') href = parsed.href; } catch (_) {}
+        if (href) {
+          const link = node('a', 'buylist-link', item.name);
+          link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          title.append(link);
+        } else title.textContent = item.name;
+        info.append(title);
+        if (item.use) info.append(node('p', 'buylist-use', item.use));
+        if (item.note) info.append(node('p', 'buylist-memo', item.note));
+        const meta = node('div', 'task-meta');
+        if (item.tag) meta.append(node('span', 'tag', item.tag));
+        if (item.logo) meta.append(node('span', 'tag' + (item.logo === '필요' ? ' tag-logo' : ''), '로고 ' + item.logo));
+        if (meta.childNodes.length) info.append(meta);
+        const price = node('p', 'buylist-price', item.price || '가격은 판매처에서 확인');
+        const side = node('div', 'buylist-side');
+        const chip = node('span', 'buylist-status', (labels[status] || status) + (stage && stage !== labels[status] ? ' · ' + stage : ''));
+        chip.dataset.status = status;
+        side.append(chip);
+        if (href) {
+          const open = node('a', 'editor-button', '판매처 열기 ↗');
+          open.href = href; open.target = '_blank'; open.rel = 'noopener noreferrer';
+          open.setAttribute('aria-label', item.name + ' 판매처 열기(새 창)');
+          side.append(open);
+        }
+        row.append(info, price, side);
+        groupBody.append(row);
+      });
+      if (!fragment.childNodes.length) fragment.append(node('p', 'empty-state', '구매 목록이 비어 있습니다.'));
+      list.replaceChildren(fragment);
+      textAt('buylist-summary', '전체 ' + source.items.length + '개 · 후보 ' + counts['검토'] + (counts['견적 요청'] ? ' · 시안·견적 요청 ' + counts['견적 요청'] : '') + ' · 주문함·제작 중 ' + counts['발주'] + ' · 도착·시험 끝 ' + counts['준비 완료']
+        + ' · ' + (liveCount ? '상태는 지금 열린 준비표 값' : '상태는 ' + (source.updated || '마지막 동기화') + ' 기준'));
+    }
+
     function renderInventorySummary() {
       const prepared = data.inventory.filter((item) => state.inventory[item.id].status === '준비 완료').length;
       textAt('inventory-summary', prepared + ' / ' + data.inventory.length + ' 품목 준비 완료');
+      renderBuyList();
     }
 
     function renderInventory() {
@@ -748,6 +814,7 @@
         state.inventory[id].quantity = input.value.slice(0, MAX_QUANTITY_LENGTH);
         save();
         budgetView?.render();
+        renderBuyList();
       });
       elements.inventoryList.addEventListener('change', (event) => {
         if (cloudLocked) return;
