@@ -1,7 +1,7 @@
 // 브랜딩·포장 구매 목록 — 공유 준비표(준비물 분류 '브랜딩·포장 구매')에서 옮긴 공개용 사본.
 // 판매처에 공개된 이름·주소·표시 가격만 담는다. 진행 상태는 공유 링크로 열면 준비표 값을 따르고, 여기 값은 동기화 때 맞춘다.
 window.OFFLINE_BUYLIST = {
- "updated": "2026-10-13 13:44",
+ "updated": "2026-10-14 08:45",
  "items": [
   {
    "id": "buy-stamp-110",
@@ -204,34 +204,6 @@ window.OFFLINE_BUYLIST = {
    "logo": "불필요",
    "note": "쿠팡 로켓.",
    "price": "4,600원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-mood-sticker-kraft",
-   "group": "브랜드 무드 아이템",
-   "groupKey": "mood",
-   "name": "로고 크라프트 스티커 원형 30mm 100매 (주문제작)",
-   "tag": "추천",
-   "use": "OPP 봉투 봉인·쇼핑백 여밈에 한 장씩. 갈색 종이에 갈색 선 도토리가 그대로 어울립니다.",
-   "link": "https://smartstore.naver.com/wise_designshop/products/6509279300",
-   "logo": "필요",
-   "note": "영업일 7일 이내 발송. 10/31 오픈에 맞추려면 10/16까지 주문하는 게 좋습니다. · 로고: 파일을 보내면 시안을 줍니다",
-   "price": "28,000원 + 배송 3,000원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-mood-sticker-bulk",
-   "group": "브랜드 무드 아이템",
-   "groupKey": "mood",
-   "name": "로고 원형 스티커 40·45mm 500~1,000개 (주문제작)",
-   "tag": "대안",
-   "use": "장당 값이 가장 싼 로고 스티커.",
-   "link": "https://www.coupang.com/vp/products/7793338603",
-   "logo": "필요",
-   "note": "재질은 판매 글에서 확인하지 못했습니다(크라프트가 아닐 수 있음). 10/21~22 도착 예정(10/13 화면).",
-   "price": "500개 12,500원",
    "stage": "후보",
    "status": "검토"
   },
@@ -499,6 +471,38 @@ window.OFFLINE_BUYLIST = {
     "more": false,
     "note": ""
    }
+  },
+  {
+   "id": "buy-mood-sticker-kraft",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "로고 크라프트 스티커 원형 30mm 100매 (주문제작)",
+   "tag": "이번엔 안 함",
+   "use": "OPP 봉투 봉인·쇼핑백 여밈에 한 장씩. 갈색 종이에 갈색 선 도토리가 그대로 어울립니다.",
+   "link": "https://smartstore.naver.com/wise_designshop/products/6509279300",
+   "logo": "필요",
+   "note": "영업일 7일 이내 발송. 10/31 오픈에 맞추려면 10/16까지 주문하는 게 좋습니다. 자체 출력으로 변경(10/14): 스티커는 집에 있는 Epson L18050으로 직접 출력하기로 해 이 완제품은 사지 않습니다. · 로고: 파일을 보내면 시안을 줍니다",
+   "price": "28,000원 + 배송 3,000원",
+   "stage": "이번엔 안 함",
+   "status": "검토",
+   "chip": "자체 출력으로 변경 · 구매 안 함",
+   "chipKind": "ok"
+  },
+  {
+   "id": "buy-mood-sticker-bulk",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "로고 원형 스티커 40·45mm 500~1,000개 (주문제작)",
+   "tag": "이번엔 안 함",
+   "use": "장당 값이 가장 싼 로고 스티커.",
+   "link": "https://www.coupang.com/vp/products/7793338603",
+   "logo": "필요",
+   "note": "재질은 판매 글에서 확인하지 못했습니다(크라프트가 아닐 수 있음). 10/21~22 도착 예정(10/13 화면). 자체 출력으로 변경(10/14): 스티커는 집에 있는 Epson L18050으로 직접 출력하기로 해 이 완제품은 사지 않습니다.",
+   "price": "500개 12,500원",
+   "stage": "이번엔 안 함",
+   "status": "검토",
+   "chip": "자체 출력으로 변경 · 구매 안 함",
+   "chipKind": "ok"
   },
   {
    "id": "buy-ink-vfc-acorn",
