@@ -65,3 +65,14 @@
 .buylist-ink strong{font-weight:600;color:var(--accent)}
 .buylist-ink-note{color:var(--muted);font-size:13px}
 .buylist-group{scroll-margin-top:90px}
+
+.tag-ok{background:#e3ead9;color:var(--green);font-weight:600}
+.tag-ask{background:#fff0e9;color:#883925;font-weight:600}
+.buylist-fold{border:1px dashed var(--line);border-radius:9px;padding:0 16px;background:var(--white)}
+.buylist-fold>summary{display:flex;align-items:baseline;gap:10px;padding:14px 0;cursor:pointer;font-size:17px;font-weight:600;letter-spacing:-.3px;color:var(--muted)}
+.buylist-fold>summary small{font-size:13px;font-weight:500}
+.buylist-fold-hint{margin-left:auto;font-size:13px;font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.buylist-fold[open]>summary .buylist-fold-hint{display:none}
+.buylist-fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.buylist-fold .buylist-row{opacity:.82}
+.buylist-status[data-status="later"]{background:var(--soft);color:var(--muted);border-style:dashed}

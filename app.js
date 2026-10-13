@@ -616,6 +616,7 @@
       if (!list || !source || !Array.isArray(source.items)) return;
       const labels = { '검토': '후보', '견적 요청': '시안·견적 요청', '발주': '주문함·제작 중', '준비 완료': '도착·시험 끝' };
       const counts = { '검토': 0, '견적 요청': 0, '발주': 0, '준비 완료': 0 };
+      let laterCount = 0;   // '이번엔 안 함'으로 내린 것(지우지 않고 접어 둠)
       const safeHref = (value) => { try { const parsed = new URL(value); if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.href; } catch (_) {} return null; };
       const fragment = document.createDocumentFragment();
       let groupName = null, groupBody = null, groupCount = null, liveCount = 0;
@@ -625,14 +626,17 @@
         const status = record && INVENTORY_STATUSES.includes(record.status) ? record.status : item.status;
         const first = record ? String(record.quantity || '').split(' · ')[0].trim() : String(item.stage || '');
         const stage = /\d[\d,]*\s*원/.test(first) ? '' : first;
-        if (status in counts) counts[status] += 1;
+        const later = item.groupKey === 'later';
+        if (later) laterCount += 1;
+        else if (status in counts) counts[status] += 1;
         if (item.group !== groupName) {
           groupName = item.group;
-          const group = node('div', 'buylist-group');
+          const group = node(later ? 'details' : 'div', 'buylist-group' + (later ? ' buylist-fold' : ''));
           if (/^[a-z]+$/.test(item.groupKey || '')) group.id = 'buylist-' + item.groupKey;
-          const heading = node('h3', '', groupName);
+          const heading = later ? node('summary', '', groupName) : node('h3', '', groupName);
           groupCount = node('small', '', '');
           heading.append(groupCount);
+          if (later) heading.append(node('span', 'buylist-fold-hint', '눌러서 펼치기'));
           groupBody = node('div', 'buylist-rows');
           group.append(heading, groupBody);
           fragment.append(group);
@@ -676,11 +680,12 @@
         const meta = node('div', 'task-meta');
         if (item.tag) meta.append(node('span', 'tag', item.tag));
         if (item.logo) meta.append(node('span', 'tag' + (item.logo === '필요' ? ' tag-logo' : ''), '로고 ' + item.logo));
+        if (item.chip) meta.append(node('span', 'tag ' + (item.chipKind === 'ask' ? 'tag-ask' : 'tag-ok'), item.chip));
         if (meta.childNodes.length) info.append(meta);
         const price = node('p', 'buylist-price', item.price || '가격은 판매처에서 확인');
         const side = node('div', 'buylist-side');
-        const chip = node('span', 'buylist-status', (labels[status] || status) + (stage && stage !== labels[status] ? ' · ' + stage : ''));
-        chip.dataset.status = status;
+        const chip = node('span', 'buylist-status', later ? '이번엔 안 함' : (labels[status] || status) + (stage && stage !== labels[status] ? ' · ' + stage : ''));
+        chip.dataset.status = later ? 'later' : status;
         side.append(chip);
         if (href) {
           const open = node('a', 'editor-button', '판매처 열기 ↗');
@@ -693,7 +698,7 @@
       });
       if (!fragment.childNodes.length) fragment.append(node('p', 'empty-state', '구매 목록이 비어 있습니다.'));
       list.replaceChildren(fragment);
-      textAt('buylist-summary', '전체 ' + source.items.length + '개 · 후보 ' + counts['검토'] + (counts['견적 요청'] ? ' · 시안·견적 요청 ' + counts['견적 요청'] : '') + ' · 주문함·제작 중 ' + counts['발주'] + ' · 도착·시험 끝 ' + counts['준비 완료']
+      textAt('buylist-summary', '전체 ' + source.items.length + '개 · 후보 ' + counts['검토'] + (counts['견적 요청'] ? ' · 시안·견적 요청 ' + counts['견적 요청'] : '') + ' · 주문함·제작 중 ' + counts['발주'] + ' · 도착·시험 끝 ' + counts['준비 완료'] + (laterCount ? ' · 이번엔 안 함 ' + laterCount : '')
         + ' · ' + (liveCount ? '상태는 지금 열린 준비표 값' : '상태는 ' + (source.updated || '마지막 동기화') + ' 기준'));
     }
 

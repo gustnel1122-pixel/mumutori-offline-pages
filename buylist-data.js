@@ -1,7 +1,7 @@
 // 브랜딩·포장 구매 목록 — 공유 준비표(준비물 분류 '브랜딩·포장 구매')에서 옮긴 공개용 사본.
 // 판매처에 공개된 이름·주소·표시 가격만 담는다. 진행 상태는 공유 링크로 열면 준비표 값을 따르고, 여기 값은 동기화 때 맞춘다.
 window.OFFLINE_BUYLIST = {
- "updated": "2026-10-13 12:35",
+ "updated": "2026-10-13 13:44",
  "items": [
   {
    "id": "buy-stamp-110",
@@ -17,7 +17,7 @@ window.OFFLINE_BUYLIST = {
    "stage": "후보",
    "status": "검토",
    "ink": {
-    "lead": "이 도장엔 →",
+    "lead": "이 도장엔 → 잉크 주황(주문할 때 잉크색에서 '주황' 선택). 리필도 주황으로:",
     "links": [
      {
       "label": "고고 전용 리필 잉크",
@@ -25,8 +25,10 @@ window.OFFLINE_BUYLIST = {
      }
     ],
     "more": false,
-    "note": "브라운은 없습니다. 주문할 때 고르는 색 중 주황(카라멜 쪽)·노랑(버터 쪽)이 가깝습니다."
-   }
+    "note": ""
+   },
+   "chip": "잉크 주황 확정",
+   "chipKind": "ok"
   },
   {
    "id": "buy-stamp-110-refill",
@@ -37,10 +39,12 @@ window.OFFLINE_BUYLIST = {
    "use": "종이용 도장 잉크 보충.",
    "link": "https://gogostamp.com/product/만년스탬프용리필잉크/38/",
    "logo": "불필요",
-   "note": "도장과 같은 계열 전용 잉크만 씁니다. 비닐용 속건 잉크를 종이용 도장에 넣지 않습니다. · 잉크: 색은 검정·빨강·청색·주황·녹색·핑크·노랑(브라운 없음). 도장과 같은 색으로 고릅니다.",
+   "note": "도장과 같은 계열 전용 잉크만 씁니다. 비닐용 속건 잉크를 종이용 도장에 넣지 않습니다.",
    "price": "2,000원부터",
    "stage": "후보",
-   "status": "검토"
+   "status": "검토",
+   "chip": "잉크 주황 확정",
+   "chipKind": "ok"
   },
   {
    "id": "buy-stamp-414",
@@ -56,74 +60,13 @@ window.OFFLINE_BUYLIST = {
    "stage": "후보",
    "status": "검토",
    "ink": {
-    "lead": "이 도장엔 → 주문할 때 고르는 잉크뿐(검정·청색·빨강, 브랜드 색 없음). OPP에 브라운은 고무도장 +",
-    "links": [
-     {
-      "label": "스테이즈온 Timber Brown",
-      "href": "https://www.coupang.com/vp/products/6126295156"
-     }
-    ],
+    "lead": "이 도장엔 → 주황 잉크가 없습니다(검정·청색·빨강뿐). 어느 색으로 할지 정해야 합니다.",
+    "links": [],
     "more": false,
     "note": ""
-   }
-  },
-  {
-   "id": "buy-stamp-pica-wood",
-   "group": "도장",
-   "groupKey": "stamp",
-   "name": "피카스탬프 원목 고무스탬프 (손잡이 없음, 크기 자유)",
-   "tag": "대안",
-   "use": "우드 감성 고무 도장. 크기에 따라 가격이 달라집니다(30×30 ~ 80×40mm). 잉크 패드는 따로 삽니다.",
-   "link": "https://pica-s.com/product/고무도장-제작-피카스탬프-손잡이-없는-버전/467/",
-   "logo": "필요",
-   "note": "제작 5~7일(10/12 조사).",
-   "price": "28,000~38,000원 (+배송)",
-   "stage": "후보",
-   "status": "검토",
-   "ink": {
-    "lead": "이 도장엔 →",
-    "links": [
-     {
-      "label": "버사파인 클레어 ACORN(종이·크라프트)",
-      "href": "https://smartstore.naver.com/julietsletters/products/11001576332"
-     },
-     {
-      "label": "스테이즈온 Timber Brown(OPP·비닐)",
-      "href": "https://www.coupang.com/vp/products/6126295156"
-     }
-    ],
-    "more": true,
-    "note": ""
-   }
-  },
-  {
-   "id": "buy-stamp-pica-gold",
-   "group": "도장",
-   "groupKey": "stamp",
-   "name": "피카스탬프 골드 손잡이 스탬프 60×40mm",
-   "tag": "대안",
-   "use": "손잡이가 예쁜 고무 도장(잉크 패드 별도).",
-   "link": "https://www.pica-s.com/product/골드-손잡이-스탬프-제작-60x40mm/527/",
-   "logo": "필요",
-   "note": "손잡이 모양과 찍히는 품질은 별개입니다.",
-   "price": "49,000원 + 배송 3,000원",
-   "stage": "후보",
-   "status": "검토",
-   "ink": {
-    "lead": "이 도장엔 →",
-    "links": [
-     {
-      "label": "버사파인 클레어 ACORN(종이·크라프트)",
-      "href": "https://smartstore.naver.com/julietsletters/products/11001576332"
-     },
-     {
-      "label": "스테이즈온 Timber Brown(OPP·비닐)",
-      "href": "https://www.coupang.com/vp/products/6126295156"
-     }
-    ],
-    "more": true,
-    "note": ""
-   }
+   },
+   "chip": "잉크색 정할 것",
+   "chipKind": "ask"
   },
   {
    "id": "buy-stamp-r532",
@@ -139,7 +82,7 @@ window.OFFLINE_BUYLIST = {
    "stage": "후보",
    "status": "검토",
    "ink": {
-    "lead": "이 도장엔 →",
+    "lead": "이 도장엔 → 주황 잉크가 없습니다(리필 잉크는 청보라·검정·빨강·초록). 어느 색으로 할지 정해야 합니다. 교체 패드:",
     "links": [
      {
       "label": "R532 교체 패드",
@@ -147,120 +90,10 @@ window.OFFLINE_BUYLIST = {
      }
     ],
     "more": false,
-    "note": "청보라·검정·빨강·초록뿐이라 브랜드 색은 없습니다."
-   }
-  },
-  {
-   "id": "buy-ink-vfc-acorn",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "츠키네코 버사파인 클레어 ACORN — 브라운 잉크 패드 (종이·크라프트용)",
-   "tag": "추천 · 종이용",
-   "use": "고무도장(피카스탬프)으로 종이·크라프트 헤더·카드·택에 진한 브라운으로 찍기. 색 이름이 ACORN(도토리)입니다.",
-   "link": "https://smartstore.naver.com/julietsletters/products/11001576332",
-   "logo": "",
-   "note": "옵션에서 VF-CLA-453 ACORN 선택. 더 어두운 갈색은 452 PINECONE, 카라멜 쪽은 451 FALLEN LEAVES. 패드 76×35mm. 판매 글에 크라프트 종이 사용 가능. 찍고 바로 겹치지 말고 마르는지 확인.",
-   "price": "8,800원 + 배송 3,300원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-stazon-timber",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "츠키네코 스테이즈온 Timber Brown — 브라운 잉크 패드 (OPP·코팅지·비닐용)",
-   "tag": "추천 · 비닐용",
-   "use": "고무도장으로 OPP 봉투·코팅지·비닐에 진한 브라운으로 찍기(유성, 빨리 마름).",
-   "link": "https://www.coupang.com/vp/products/6126295156",
-   "logo": "",
-   "note": "SZ-41 Timber Brown. 쿠팡 내일 도착(10/13 화면). 뚜껑을 안 닫으면 금방 마릅니다. 고무판은 전용 클리너로 닦습니다. 실제 OPP 봉투에 찍어 말린 뒤 문지르기·구기기 시험부터.",
-   "price": "9,340원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-stazon-cleaner",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "스테이즈온 전용 클리너 (유성 잉크 닦는 용)",
-   "tag": "같이 주문 · 스테이즈온 쓸 때",
-   "use": "스테이즈온(유성) 잉크를 쓴 고무판을 닦는 전용 클리너.",
-   "link": "https://www.coupang.com/vp/products/6726839964",
-   "logo": "",
-   "note": "스테이즈온을 살 때만 같이. 버사파인·메멘토 패드에는 필요 없습니다.",
-   "price": "7,500원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-memento",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "츠키네코 메멘토 Rich Cocoa — 작은 브라운 패드 (값싸게·빨리 마르게)",
-   "tag": "대안 · 종이용",
-   "use": "고무도장으로 종이에 찍는 수성 염료 패드. 값이 싸고 빨리 마릅니다.",
-   "link": "https://smartstore.naver.com/julietsletters/products/4154355739",
-   "logo": "",
-   "note": "옵션에서 MD-800 Rich Cocoa(진한 브라운). 카라멜은 MD-801 Potter's Clay와 MD-802 Peanut Brittle, 아주 진한 갈색은 MD-808 Espresso Truffle. 버터 쪽 MD-100 Dandelion과 MD-103 Cantaloupe는 흰 종이에서만 보입니다. 패드가 24×39mm로 작아 60mm 도장은 여러 번 두드려 묻힙니다. 크라프트에서는 색이 가라앉고 물에 번집니다.",
-   "price": "4,500원 + 배송 3,300원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-versacraft-choco",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "츠키네코 버사크래프트 대 Chocolate — 큰 브라운 패드 (박스·쇼핑백용)",
-   "tag": "대안 · 큰 면",
-   "use": "고무도장으로 박스·쇼핑백처럼 큰 면에 찍기. 패드가 커서 60×40mm 도장을 한 번에 묻히기 좋습니다.",
-   "link": "https://www.coupang.com/vp/products/73875471",
-   "logo": "",
-   "note": "VK-154 Chocolate. 쿠팡 내일 도착(10/13 화면). 판매 글은 '패브릭 잉크'라 종이에서의 발색·건조는 찍어 보고 확인.",
-   "price": "13,400원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-kr-pad",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "국내산 스탬프패드 10×7cm 갈색·황색 (나노)",
-   "tag": "대안 · 큰 패드",
-   "use": "고무도장용 국산 큰 패드. 갈색은 진한 브라운 쪽, 황색은 버터와 카라멜 사이.",
-   "link": "https://www.coupang.com/vp/products/83849067",
-   "logo": "",
-   "note": "옵션에서 색 선택. 잉크 성질(수성·유성)과 실제 색은 판매 글에서 확인하지 못했습니다.",
-   "price": "4,500원 + 배송 3,000원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-stazon-midi",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "츠키네코 스테이즈온 미디 Ganache·Spiced Chai (OPP·비닐용 다른 브라운)",
-   "tag": "대안 · 비닐용",
-   "use": "OPP·비닐에 찍는 유성 패드의 다른 색. Ganache는 어두운 초콜릿, Spiced Chai는 카라멜.",
-   "link": "https://smartstore.naver.com/julietsletters/products/11001569113",
-   "logo": "",
-   "note": "옵션에서 SZ-MID-44 Ganache 또는 SZ-MID-45 Spiced Chai 선택. 전용 클리너로 닦습니다.",
-   "price": "6,500원 + 배송 3,300원",
-   "stage": "후보",
-   "status": "검토"
-  },
-  {
-   "id": "buy-ink-stazon-pigment",
-   "group": "도장 잉크",
-   "groupKey": "ink",
-   "name": "스테이즈온 피그먼트 SNOWFLAKE — 크라프트 위에 크림색으로 찍는 불투명 패드",
-   "tag": "대안 · 크림색",
-   "use": "갈색 크라프트·비닐 위에 버터 크림처럼 보이게 찍는 불투명 흰색 잉크.",
-   "link": "https://smartstore.naver.com/julietsletters/products/11001570422",
-   "logo": "",
-   "note": "옵션에서 SZ-PIG-001 SNOWFLAKE. 불투명 브라운은 041 C.BROWN, 노랑은 091 LEMON DROP. 패드 76×35mm. 비닐에서는 번지지 않게 연습이 필요하다는 후기가 있습니다. 버터 노랑 잉크는 크라프트에서 거의 안 보여 이 방법을 씁니다.",
-   "price": "8,800원 + 배송 3,300원",
-   "stage": "후보",
-   "status": "검토"
+    "note": ""
+   },
+   "chip": "잉크색 정할 것",
+   "chipKind": "ask"
   },
   {
    "id": "buy-ink-r532-pad",
@@ -608,6 +441,176 @@ window.OFFLINE_BUYLIST = {
     "more": false,
     "note": "잉크가 아니라 왁스를 녹여 찍습니다."
    }
+  },
+  {
+   "id": "buy-stamp-pica-wood",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "피카스탬프 원목 고무스탬프 (손잡이 없음, 크기 자유)",
+   "tag": "이번엔 안 함",
+   "use": "우드 감성 고무 도장. 크기에 따라 가격이 달라집니다(30×30 ~ 80×40mm). 잉크 패드는 따로 삽니다.",
+   "link": "https://pica-s.com/product/고무도장-제작-피카스탬프-손잡이-없는-버전/467/",
+   "logo": "필요",
+   "note": "제작 5~7일(10/12 조사).",
+   "price": "28,000~38,000원 (+배송)",
+   "stage": "이번엔 안 함",
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 →",
+    "links": [
+     {
+      "label": "버사파인 클레어 ACORN(종이·크라프트)",
+      "href": "https://smartstore.naver.com/julietsletters/products/11001576332"
+     },
+     {
+      "label": "스테이즈온 Timber Brown(OPP·비닐)",
+      "href": "https://www.coupang.com/vp/products/6126295156"
+     }
+    ],
+    "more": false,
+    "note": ""
+   }
+  },
+  {
+   "id": "buy-stamp-pica-gold",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "피카스탬프 골드 손잡이 스탬프 60×40mm",
+   "tag": "이번엔 안 함",
+   "use": "손잡이가 예쁜 고무 도장(잉크 패드 별도).",
+   "link": "https://www.pica-s.com/product/골드-손잡이-스탬프-제작-60x40mm/527/",
+   "logo": "필요",
+   "note": "손잡이 모양과 찍히는 품질은 별개입니다.",
+   "price": "49,000원 + 배송 3,000원",
+   "stage": "이번엔 안 함",
+   "status": "검토",
+   "ink": {
+    "lead": "이 도장엔 →",
+    "links": [
+     {
+      "label": "버사파인 클레어 ACORN(종이·크라프트)",
+      "href": "https://smartstore.naver.com/julietsletters/products/11001576332"
+     },
+     {
+      "label": "스테이즈온 Timber Brown(OPP·비닐)",
+      "href": "https://www.coupang.com/vp/products/6126295156"
+     }
+    ],
+    "more": false,
+    "note": ""
+   }
+  },
+  {
+   "id": "buy-ink-vfc-acorn",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "츠키네코 버사파인 클레어 ACORN — 브라운 잉크 패드 (종이·크라프트용)",
+   "tag": "이번엔 안 함 · 종이용",
+   "use": "고무도장(피카스탬프)으로 종이·크라프트 헤더·카드·택에 진한 브라운으로 찍기. 색 이름이 ACORN(도토리)입니다.",
+   "link": "https://smartstore.naver.com/julietsletters/products/11001576332",
+   "logo": "",
+   "note": "옵션에서 VF-CLA-453 ACORN 선택. 더 어두운 갈색은 452 PINECONE, 카라멜 쪽은 451 FALLEN LEAVES. 패드 76×35mm. 판매 글에 크라프트 종이 사용 가능. 찍고 바로 겹치지 말고 마르는지 확인. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "8,800원 + 배송 3,300원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-timber",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "츠키네코 스테이즈온 Timber Brown — 브라운 잉크 패드 (OPP·코팅지·비닐용)",
+   "tag": "이번엔 안 함 · 비닐용",
+   "use": "고무도장으로 OPP 봉투·코팅지·비닐에 진한 브라운으로 찍기(유성, 빨리 마름).",
+   "link": "https://www.coupang.com/vp/products/6126295156",
+   "logo": "",
+   "note": "SZ-41 Timber Brown. 쿠팡 내일 도착(10/13 화면). 뚜껑을 안 닫으면 금방 마릅니다. 고무판은 전용 클리너로 닦습니다. 실제 OPP 봉투에 찍어 말린 뒤 문지르기·구기기 시험부터. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "9,340원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-cleaner",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "스테이즈온 전용 클리너 (유성 잉크 닦는 용)",
+   "tag": "이번엔 안 함 · 스테이즈온 쓸 때",
+   "use": "스테이즈온(유성) 잉크를 쓴 고무판을 닦는 전용 클리너.",
+   "link": "https://www.coupang.com/vp/products/6726839964",
+   "logo": "",
+   "note": "스테이즈온을 살 때만 같이. 버사파인·메멘토 패드에는 필요 없습니다. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "7,500원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-memento",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "츠키네코 메멘토 Rich Cocoa — 작은 브라운 패드 (값싸게·빨리 마르게)",
+   "tag": "이번엔 안 함 · 종이용",
+   "use": "고무도장으로 종이에 찍는 수성 염료 패드. 값이 싸고 빨리 마릅니다.",
+   "link": "https://smartstore.naver.com/julietsletters/products/4154355739",
+   "logo": "",
+   "note": "옵션에서 MD-800 Rich Cocoa(진한 브라운). 카라멜은 MD-801 Potter's Clay와 MD-802 Peanut Brittle, 아주 진한 갈색은 MD-808 Espresso Truffle. 버터 쪽 MD-100 Dandelion과 MD-103 Cantaloupe는 흰 종이에서만 보입니다. 패드가 24×39mm로 작아 60mm 도장은 여러 번 두드려 묻힙니다. 크라프트에서는 색이 가라앉고 물에 번집니다. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "4,500원 + 배송 3,300원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-versacraft-choco",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "츠키네코 버사크래프트 대 Chocolate — 큰 브라운 패드 (박스·쇼핑백용)",
+   "tag": "이번엔 안 함 · 큰 면",
+   "use": "고무도장으로 박스·쇼핑백처럼 큰 면에 찍기. 패드가 커서 60×40mm 도장을 한 번에 묻히기 좋습니다.",
+   "link": "https://www.coupang.com/vp/products/73875471",
+   "logo": "",
+   "note": "VK-154 Chocolate. 쿠팡 내일 도착(10/13 화면). 판매 글은 '패브릭 잉크'라 종이에서의 발색·건조는 찍어 보고 확인. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "13,400원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-kr-pad",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "국내산 스탬프패드 10×7cm 갈색·황색 (나노)",
+   "tag": "이번엔 안 함 · 큰 패드",
+   "use": "고무도장용 국산 큰 패드. 갈색은 진한 브라운 쪽, 황색은 버터와 카라멜 사이.",
+   "link": "https://www.coupang.com/vp/products/83849067",
+   "logo": "",
+   "note": "옵션에서 색 선택. 잉크 성질(수성·유성)과 실제 색은 판매 글에서 확인하지 못했습니다. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "4,500원 + 배송 3,000원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-midi",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "츠키네코 스테이즈온 미디 Ganache·Spiced Chai (OPP·비닐용 다른 브라운)",
+   "tag": "이번엔 안 함 · 비닐용",
+   "use": "OPP·비닐에 찍는 유성 패드의 다른 색. Ganache는 어두운 초콜릿, Spiced Chai는 카라멜.",
+   "link": "https://smartstore.naver.com/julietsletters/products/11001569113",
+   "logo": "",
+   "note": "옵션에서 SZ-MID-44 Ganache 또는 SZ-MID-45 Spiced Chai 선택. 전용 클리너로 닦습니다. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "6,500원 + 배송 3,300원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
+  },
+  {
+   "id": "buy-ink-stazon-pigment",
+   "group": "이번엔 안 함",
+   "groupKey": "later",
+   "name": "스테이즈온 피그먼트 SNOWFLAKE — 크라프트 위에 크림색으로 찍는 불투명 패드",
+   "tag": "이번엔 안 함 · 크림색",
+   "use": "갈색 크라프트·비닐 위에 버터 크림처럼 보이게 찍는 불투명 흰색 잉크.",
+   "link": "https://smartstore.naver.com/julietsletters/products/11001570422",
+   "logo": "",
+   "note": "옵션에서 SZ-PIG-001 SNOWFLAKE. 불투명 브라운은 041 C.BROWN, 노랑은 091 LEMON DROP. 패드 76×35mm. 비닐에서는 번지지 않게 연습이 필요하다는 후기가 있습니다. 버터 노랑 잉크는 크라프트에서 거의 안 보여 이 방법을 씁니다. 이번엔 안 함(10/13): 사장님이 만년도장 + 주황 잉크로 정함. 브라운으로 바꿀 때 다시 봅니다.",
+   "price": "8,800원 + 배송 3,300원",
+   "stage": "이번엔 안 함",
+   "status": "검토"
   }
  ]
 };
