@@ -209,6 +209,30 @@
       return element;
     }
 
+    // 설명 글 안의 http(s) 주소를 눌러 열 수 있는 링크로 보여 준다(화면 표시만 — 저장 내용은 그대로).
+    function detailNode(text) {
+      const paragraph = node('p', 'task-detail');
+      const value = String(text);
+      const pattern = /https?:\/\/[^\s<>"']+/g;
+      let last = 0, match;
+      while ((match = pattern.exec(value))) {
+        const url = match[0].replace(/[.,;:!?)\]]+$/, '');
+        const end = match.index + url.length;
+        pattern.lastIndex = end;
+        if (match.index > last) paragraph.append(document.createTextNode(value.slice(last, match.index)));
+        let safe = null;
+        try { const parsed = new URL(url); if (parsed.protocol === 'https:' || parsed.protocol === 'http:') safe = parsed.href; } catch (_) {}
+        if (safe) {
+          const link = node('a', 'detail-link', url);
+          link.href = safe; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          paragraph.append(link);
+        } else paragraph.append(document.createTextNode(url));
+        last = end;
+      }
+      if (last < value.length) paragraph.append(document.createTextNode(value.slice(last)));
+      return paragraph;
+    }
+
     function textAt(id, text) {
       const element = byId(id);
       if (element) element.textContent = text;
@@ -552,7 +576,7 @@
         if (task.owner) meta.append(node('span', 'owner', task.owner));
         if (task.dueDate) meta.append(node('span', 'task-due' + (!done && task.dueDate < today ? ' task-overdue' : ''), '기한 ' + task.dueDate.replaceAll('-', '.') + (!done && task.dueDate < today ? ' · 지남' : '')));
         info.append(label, meta);
-        if (task.detail) info.append(node('p', 'task-detail', task.detail));
+        if (task.detail) info.append(detailNode(task.detail));
         const referenceValue = window.OFFLINE_TASK_REFERENCES?.[task.id];
         const references = referenceValue ? (Array.isArray(referenceValue) ? referenceValue : [referenceValue]) : [];
         if (references.length) {
@@ -603,7 +627,7 @@
         if (item.category) meta.append(node('span', 'tag', item.category));
         if (item.priority) meta.append(node('span', 'tag tag-priority', item.priority));
         info.append(meta);
-        if (item.detail) info.append(node('p', 'task-detail', item.detail));
+        if (item.detail) info.append(detailNode(item.detail));
         const quantityLabel = node('label', 'inventory-quantity');
         quantityLabel.append(node('span', '', '수량'));
         const quantity = node('input');
