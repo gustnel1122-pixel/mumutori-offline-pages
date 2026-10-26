@@ -76,3 +76,9 @@
 .buylist-fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .buylist-fold .buylist-row{opacity:.82}
 .buylist-status[data-status="later"]{background:var(--soft);color:var(--muted);border-style:dashed}
+
+/* 팔시보 묶음은 기존 구매 목록과 같은 준비표 값을 사용한다. */
+#buylist [hidden]{display:none!important}
+#palsibo-tools{flex-wrap:wrap;margin:14px 0}
+#palsibo-copy-fallback{width:100%;max-width:100%}
+.buylist-field-note{margin-top:8px}

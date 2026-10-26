@@ -52,6 +52,99 @@
     let cloudLocked = false;
     let budgetView = null;
     let state = createDefaults();
+    const palsibo = window.PalsiboMigration;
+    const tripItems = palsibo ? palsibo.items(window.OFFLINE_BUYLIST) : [];
+    const tripById = new Map(tripItems.map(item => [item.id, item]));
+    const params = new URLSearchParams(location.search);
+    const hasSharedLink = /^[A-Za-z0-9_-]{43}$/.test(params.get('share') || '');
+    let buylistFilter = params.get('shopping') === 'palsibo-20261026' ? 'today' : 'branding';
+    let migrationRunning = false, pendingMigration = null;
+
+    // Untouched catalogue rows stay virtual. Opening a page never replaces the
+    // shared list, and another device's old check can still be imported safely.
+    function inventoryEntries() {
+      return data.inventory.concat(tripItems.filter(item => !inventoryIds.has(item.id)).map(item => palsibo.definition(item)));
+    }
+    function inventoryRecord(item) {
+      return state.inventory[item.id] || (tripById.has(item.id) ? palsibo.record(tripById.get(item.id)) : {quantity:item.quantity,status:item.status});
+    }
+    function ensureInventory(id) {
+      if (tripById.has(id)) { palsibo.ensureItem(state, tripById.get(id)); syncDefinitions(); }
+      return inventoryIds.has(id);
+    }
+    function tripActions(item) {
+      const actions = node('div', 'item-actions');
+      const edit = editorButton('수량·메모 수정', '', () => {
+        if (cloudLocked || persistenceBlocked) return;
+        ensureInventory(item.id); save(); showItemEditor('inventory', item.id);
+      });
+      edit.setAttribute('aria-label', item.name + ' 수량·메모 수정');
+      edit.disabled = cloudLocked || persistenceBlocked;
+      actions.append(edit); return actions;
+    }
+    function migrationMessage(text) {
+      const box = byId('palsibo-migration-status');
+      if (box) { box.hidden = !text; box.textContent = text; }
+    }
+    async function fingerprint(text) {
+      const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(bytes), value => value.toString(16).padStart(2, '0')).join('');
+    }
+    function migrationProjection(snapshot) {
+      return JSON.stringify(tripItems.map(item => [item.id, snapshot.inventory[item.id] || null,
+        snapshot.definitions.inventory.find(entry => entry.id === item.id) || null]));
+    }
+    function acknowledgeMigration(snapshot) {
+      const pending = pendingMigration;
+      if (!pending || migrationProjection(snapshot) !== pending.expected) return;
+      if (pending.deferred) {
+        migrationMessage('긴 메모 ' + pending.deferred + '개는 옛 목록에 보관했어요. 준비표의 메모를 확인해 주세요.');
+        return;
+      }
+      try {
+        localStorage.setItem(pending.key, pending.fingerprint);
+        pendingMigration = null;
+        migrationMessage('옛 팔시보 체크·메모를 이 준비표로 옮겼어요.' +
+          (pending.conflicts ? ' 겹친 ' + pending.conflicts + '개 체크는 지금 준비표의 값을 유지했어요.' : '') +
+          (hasSharedLink ? ' 다른 기기에서도 같은 공유 링크로 이어 쓸 수 있어요.' : ' 다른 기기에서는 쓰시던 공유 링크로 열어 주세요.'));
+      } catch (_) { migrationMessage('체크·메모는 저장했지만 이전 완료 표시를 남기지 못했어요. 옛 목록은 그대로 보관되어 있어요.'); }
+    }
+    async function migratePalsibo() {
+      if (!palsibo || persistenceBlocked || cloudLocked || migrationRunning || (hasSharedLink && !cloud?.connected())) return;
+      migrationRunning = true;
+      try {
+        const raw = localStorage.getItem(palsibo.LEGACY_KEY);
+        const legacy = palsibo.parse(raw);
+        if (!legacy) return;
+        const digest = await fingerprint(raw);
+        const scope = hasSharedLink ? await fingerprint(params.get('share')) : 'local';
+        const key = 'mumutori-palsibo-migration-v1:' + scope;
+        if (localStorage.getItem(key) === digest) return;
+        if (pendingMigration?.key === key && pendingMigration.fingerprint === digest &&
+            pendingMigration.expected === migrationProjection(state)) return;
+        // Connection or state may change while the digest promise is pending.
+        if (persistenceBlocked || cloudLocked || (hasSharedLink && !cloud?.connected())) return;
+        const result = palsibo.merge(state, legacy, tripItems);
+        const next = validateAndMerge(result.state, createDefaults());
+        pendingMigration = {key, fingerprint:digest, expected:migrationProjection(next),
+          conflicts:result.conflicts.length, deferred:result.notesDeferred.length};
+        if (result.changed) {
+          state = next;
+          if (!save()) { pendingMigration = null; return; }
+          syncDefinitions(); renderInventoryFilters(); renderInventory();
+          migrationMessage(hasSharedLink ? '옛 체크·메모를 옮겼어요. 공유 저장을 확인하고 있어요.' : '옛 체크·메모를 이 기기에 옮겼어요.');
+        }
+        if (!hasSharedLink) acknowledgeMigration(state);
+        else if (!result.changed) cloud.confirmCurrent?.();
+      } catch (error) { migrationMessage(error.message || '옛 체크 기록을 확인하지 못했어요. 원본은 그대로 보관합니다.'); }
+      finally { migrationRunning = false; }
+    }
+    function cloudSettled(snapshot) {
+      acknowledgeMigration(snapshot);
+      // Run after Firebase has updated its comparison baseline.
+      queueMicrotask(migratePalsibo);
+    }
+
 
     function createDefaults() {
       const tasks = Object.create(null);
@@ -77,7 +170,7 @@
       data.tasks.forEach(task => { taskIds.add(task.id); taskTitles.set(task.id, task.title); });
       data.inventory.forEach(item => inventoryIds.add(item.id));
       if (activeCategory !== '전체' && !state.definitions.taskCategories.includes(activeCategory)) activeCategory = '전체';
-      if (activeInventoryCategory !== '전체' && !state.definitions.inventoryCategories.includes(activeInventoryCategory)) activeInventoryCategory = '전체';
+      if (activeInventoryCategory !== '전체' && activeInventoryCategory !== palsibo?.CATEGORY && !state.definitions.inventoryCategories.includes(activeInventoryCategory)) activeInventoryCategory = '전체';
     }
 
     function validateDefinitions(definitions) {
@@ -620,9 +713,25 @@
       const safeHref = (value) => { try { const parsed = new URL(value); if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.href; } catch (_) {} return null; };
       const fragment = document.createDocumentFragment();
       let groupName = null, groupBody = null, groupCount = null, liveCount = 0;
-      source.items.forEach((item) => {
-        const record = inventoryIds.has(item.id) ? state.inventory[item.id] : null;
-        if (record) liveCount += 1;
+      const visibleItems = source.items.filter(item => {
+        const trip = tripById.has(item.id);
+        if (buylistFilter === 'branding') return !trip;
+        if (!trip || (buylistFilter !== 'trip' && item.shoppingGroup !== buylistFilter)) return false;
+        return !byId('buylist-incomplete')?.checked || inventoryRecord(item).status !== '준비 완료';
+      });
+      const tripView = buylistFilter !== 'branding';
+      textAt('buylist-title', tripView ? '10/26 팔시보 구매.' : '브랜딩·포장 구매 목록.');
+      textAt('buylist-intro', tripView ? '다희 님 배치안에서 필요한 것만, 보유 수량과 치수를 확인한 뒤 준비해요. 여기서 체크한 값은 06 준비표와 같아요.' : '기존 브랜딩·포장 구매 후보입니다. 판매처와 준비표의 진행 상태를 함께 확인하세요.');
+      const decisions = byId('buylist-decisions'); if (decisions) decisions.hidden = tripView;
+      const tools = byId('palsibo-tools'); if (tools) tools.hidden = !tripView;
+      byId('buylist-filters')?.querySelectorAll('[data-buylist-filter]').forEach(button => {
+        const active = button.dataset.buylistFilter === buylistFilter;
+        button.setAttribute('aria-pressed', String(active)); button.classList.toggle('active', active);
+      });
+      visibleItems.forEach((item) => {
+        const trip = tripById.has(item.id);
+        const record = trip ? inventoryRecord(item) : inventoryIds.has(item.id) ? state.inventory[item.id] : null;
+        if (inventoryIds.has(item.id)) liveCount += 1;
         const status = record && INVENTORY_STATUSES.includes(record.status) ? record.status : item.status;
         const first = record ? String(record.quantity || '').split(' · ')[0].trim() : String(item.stage || '');
         const stage = /\d[\d,]*\s*원/.test(first) ? '' : first;
@@ -632,7 +741,7 @@
         if (item.group !== groupName) {
           groupName = item.group;
           const group = node(later ? 'details' : 'div', 'buylist-group' + (later ? ' buylist-fold' : ''));
-          if (/^[a-z]+$/.test(item.groupKey || '')) group.id = 'buylist-' + item.groupKey;
+          if (/^[a-z0-9-]+$/.test(item.groupKey || '')) group.id = 'buylist-' + item.groupKey;
           const heading = later ? node('summary', '', groupName) : node('h3', '', groupName);
           groupCount = node('small', '', '');
           heading.append(groupCount);
@@ -646,15 +755,25 @@
         row.classList.toggle('buylist-done', status === '준비 완료');
         const info = node('div', 'buylist-info');
         const title = node('h4', 'buylist-name');
+        const edited = trip && state.definitions.inventory.find(entry => entry.id === item.id);
+        const itemName = edited?.name || item.name;
         const href = safeHref(item.link);
         if (href) {
-          const link = node('a', 'buylist-link', item.name);
+          const link = node('a', 'buylist-link', itemName);
           link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
           title.append(link);
-        } else title.textContent = item.name;
+        } else title.textContent = itemName;
         info.append(title);
         if (item.use) info.append(node('p', 'buylist-use', item.use));
         if (item.note) info.append(node('p', 'buylist-memo', item.note));
+        if (trip && item.figure) info.append(node('p', 'buylist-memo', '그림 자리 · ' + item.figure));
+        if (trip && safeHref(item.image)) {
+          const figure = node('a', 'buylist-link', '다희 님 배치 그림 보기 ↗');
+          figure.href = safeHref(item.image); figure.target = '_blank'; figure.rel = 'noopener noreferrer'; info.append(figure);
+        }
+        if (edited && edited.detail !== palsibo.definition(item).detail) {
+          const extra = node('details', 'buylist-field-note'); extra.append(node('summary', '', '준비표 메모 보기'), detailNode(edited.detail)); info.append(extra);
+        }
         // 어떤 도장에 어떤 잉크인지: '이 도장엔 → ○○ 잉크'(판매처 링크, 새 창)
         if (item.ink && Array.isArray(item.ink.links)) {
           const line = node('p', 'buylist-ink');
@@ -682,11 +801,27 @@
         if (item.logo) meta.append(node('span', 'tag' + (item.logo === '필요' ? ' tag-logo' : ''), '로고 ' + item.logo));
         if (item.chip) meta.append(node('span', 'tag ' + (item.chipKind === 'ask' ? 'tag-ask' : 'tag-ok'), item.chip));
         if (meta.childNodes.length) info.append(meta);
-        const price = node('p', 'buylist-price', item.price || '가격은 판매처에서 확인');
+        const price = node('p', 'buylist-price', trip ? String(record.quantity || item.qty || '') : item.price || '가격은 판매처에서 확인');
         const side = node('div', 'buylist-side');
         const chip = node('span', 'buylist-status', later ? '이번엔 안 함' : (labels[status] || status) + (stage && stage !== labels[status] ? ' · ' + stage : ''));
         chip.dataset.status = later ? 'later' : status;
+        if (trip) chip.textContent = status === '준비 완료' ? (item.shoppingGroup === 'verify' ? '확인 완료' : item.shoppingGroup === 'owned' ? '보유·재사용' : '준비 끝') : status === '검토' ? item.stage : labels[status];
         side.append(chip);
+        if (trip && item.shoppingGroup !== 'owned') {
+          const label = node('label', 'incomplete-toggle');
+          const check = node('input'); check.type = 'checkbox'; check.dataset.palsiboCheck = item.id;
+          check.checked = status === '준비 완료'; check.disabled = cloudLocked || persistenceBlocked;
+          check.setAttribute('aria-label', item.zone + ' ' + itemName + ' ' + (item.shoppingGroup === 'verify' ? '확인 완료' : '준비 끝'));
+          label.append(check, document.createTextNode(item.shoppingGroup === 'verify' ? '확인 완료' : '준비 끝')); side.append(label);
+          const edit = editorButton('준비표에서 수정', '', () => {
+            activeInventoryCategory = edited?.category || palsibo.CATEGORY; inventoryQuery = '';
+            const search = byId('inventory-search'); if (search) search.value = '';
+            renderInventoryFilters(); renderInventory();
+            const target = elements.inventoryList.querySelector('[data-inventory-row="' + item.id + '"]');
+            location.hash = 'inventory'; target?.scrollIntoView({block:'center'}); target?.querySelector('input')?.focus({preventScroll:true});
+          });
+          side.append(edit);
+        }
         if (href) {
           const open = node('a', 'editor-button', '판매처 열기 ↗');
           open.href = href; open.target = '_blank'; open.rel = 'noopener noreferrer';
@@ -698,22 +833,54 @@
       });
       if (!fragment.childNodes.length) fragment.append(node('p', 'empty-state', '구매 목록이 비어 있습니다.'));
       list.replaceChildren(fragment);
-      textAt('buylist-summary', '전체 ' + source.items.length + '개 · 후보 ' + counts['검토'] + (counts['견적 요청'] ? ' · 시안·견적 요청 ' + counts['견적 요청'] : '') + ' · 주문함·제작 중 ' + counts['발주'] + ' · 도착·시험 끝 ' + counts['준비 완료'] + (laterCount ? ' · 이번엔 안 함 ' + laterCount : '')
-        + ' · ' + (liveCount ? '상태는 지금 열린 준비표 값' : '상태는 ' + (source.updated || '마지막 동기화') + ' 기준'));
+      textAt('buylist-summary', '표시 ' + visibleItems.length + '개 · 후보 ' + counts['검토'] + (counts['견적 요청'] ? ' · 시안·견적 요청 ' + counts['견적 요청'] : '') + ' · 주문함·제작 중 ' + counts['발주'] + ' · 도착·시험 끝 ' + counts['준비 완료'] + (laterCount ? ' · 이번엔 안 함 ' + laterCount : '')
+        + ' · ' + (tripView ? (hasSharedLink ? '같은 공유 링크로 이어쓰기' : '이 기기에 저장 · 다른 기기는 공유 링크로 열기') : liveCount ? '상태는 지금 열린 준비표 값' : '상태는 ' + (source.updated || '마지막 동기화') + ' 기준'));
     }
 
+    byId('buylist-filters')?.addEventListener('click', event => {
+      const button = event.target.closest('[data-buylist-filter]'); if (!button) return;
+      buylistFilter = button.dataset.buylistFilter; renderBuyList();
+    });
+    byId('buylist-incomplete')?.addEventListener('change', renderBuyList);
+    byId('buylist-list')?.addEventListener('change', event => {
+      const input = event.target, id = input.dataset.palsiboCheck;
+      if (!tripById.has(id) || cloudLocked || persistenceBlocked || input.type !== 'checkbox') return;
+      ensureInventory(id); state.inventory[id].status = input.checked ? '준비 완료' : '검토';
+      save(); renderInventory();
+    });
+    byId('palsibo-copy')?.addEventListener('click', async () => {
+      const labels = {today:'오늘 구매',verify:'현장 확인',elsewhere:'별도 준비',owned:'보유·재사용'};
+      const text = '무무토리 · 10/26 팔시보 체크 결과\n' + tripItems.map(item => {
+        const record = inventoryRecord(item);
+        const definition = state.definitions.inventory.find(entry => entry.id === item.id);
+        const memo = definition && definition.detail !== palsibo.definition(item).detail ? ' / 메모: ' + definition.detail : '';
+        const status = record.status === '준비 완료' ? (item.shoppingGroup === 'verify' ? '확인 완료' : '준비 끝') : record.status;
+        return '[' + labels[item.shoppingGroup] + ' · ' + status + '] ' + item.zone + ' / ' + (definition?.name || item.name) + ' (' + record.quantity + ')' + memo;
+      }).join('\n');
+      try { await navigator.clipboard.writeText(text); notify('체크 결과를 복사했어요.'); }
+      catch (_) {
+        const box = byId('palsibo-copy-fallback'); box.hidden = false; box.value = text; box.focus(); box.select();
+        notify('아래 글을 선택해 복사해 주세요.');
+      }
+    });
+    document.querySelectorAll('[data-palsibo-link]').forEach(link => {
+      const url = new URL(location.href); url.searchParams.set('shopping', 'palsibo-20261026'); url.hash = 'buylist'; link.href = url.href;
+    });
+
     function renderInventorySummary() {
-      const prepared = data.inventory.filter((item) => state.inventory[item.id].status === '준비 완료').length;
-      textAt('inventory-summary', prepared + ' / ' + data.inventory.length + ' 품목 준비 완료');
+      const entries = inventoryEntries();
+      const prepared = entries.filter(item => inventoryRecord(item).status === '준비 완료').length;
+      textAt('inventory-summary', prepared + ' / ' + entries.length + ' 품목 준비 완료');
       renderBuyList();
     }
 
     function renderInventory() {
       if (!elements.inventoryList) return;
       const fragment = document.createDocumentFragment();
-      data.inventory.filter(item => (activeInventoryCategory === '전체' || item.category === activeInventoryCategory) && (!inventoryQuery || [item.name, item.category, item.detail, item.priority].join(' ').toLocaleLowerCase('ko').includes(inventoryQuery))).forEach((item) => {
+      inventoryEntries().filter(item => (activeInventoryCategory === '전체' || item.category === activeInventoryCategory) && (!inventoryQuery || [item.name, item.category, item.detail, item.priority].join(' ').toLocaleLowerCase('ko').includes(inventoryQuery))).forEach((item) => {
         const row = node('article', 'inventory-row');
-        row.classList.toggle('inventory-done', state.inventory[item.id].status === '준비 완료');
+        const record = inventoryRecord(item);
+        row.classList.toggle('inventory-done', record.status === '준비 완료');
         row.dataset.inventoryRow = item.id;
         const info = node('div', 'inventory-info');
         info.append(node('h3', 'inventory-name', item.name));
@@ -728,7 +895,7 @@
         quantity.type = 'text';
         quantity.disabled = cloudLocked;
         quantity.maxLength = MAX_QUANTITY_LENGTH;
-        quantity.value = state.inventory[item.id].quantity;
+        quantity.value = record.quantity;
         quantity.dataset.inventoryId = item.id;
         quantity.dataset.field = 'quantity';
         quantity.setAttribute('aria-label', item.name + ' 수량');
@@ -745,9 +912,9 @@
           option.value = value;
           select.append(option);
         });
-        select.value = state.inventory[item.id].status;
+        select.value = record.status;
         statusLabel.append(select);
-        info.append(itemActions('inventory', item));
+        info.append(tripById.has(item.id) ? tripActions(item) : itemActions('inventory', item));
         row.append(info, quantityLabel, statusLabel);
         fragment.append(row);
       });
@@ -761,7 +928,7 @@
       const filters = byId('inventory-filters');
       if (!filters) return;
       filters.replaceChildren();
-      ['전체', ...state.definitions.inventoryCategories].forEach(category => {
+      ['전체', ...new Set([...state.definitions.inventoryCategories, ...(tripItems.length ? [palsibo.CATEGORY] : [])])].forEach(category => {
         const button = node('button', 'filter-button', category);
         button.type = 'button'; button.dataset.inventoryCategory = category;
         button.setAttribute('aria-pressed', String(category === activeInventoryCategory));
@@ -838,7 +1005,7 @@
         if (cloudLocked) return;
         const input = event.target;
         const id = input.dataset.inventoryId;
-        if (!inventoryIds.has(id) || input.dataset.field !== 'quantity') return;
+        if (persistenceBlocked || input.dataset.field !== 'quantity' || !ensureInventory(id)) return;
         state.inventory[id].quantity = input.value.slice(0, MAX_QUANTITY_LENGTH);
         save();
         budgetView?.render();
@@ -848,7 +1015,7 @@
         if (cloudLocked) return;
         const select = event.target;
         const id = select.dataset.inventoryId;
-        if (!inventoryIds.has(id) || select.dataset.field !== 'status' || !INVENTORY_STATUSES.includes(select.value)) return;
+        if (persistenceBlocked || select.dataset.field !== 'status' || !INVENTORY_STATUSES.includes(select.value) || !ensureInventory(id)) return;
         state.inventory[id].status = select.value;
         const row = select.closest('.inventory-row');
         if (row) row.classList.toggle('inventory-done', select.value === '준비 완료');
@@ -999,10 +1166,11 @@
       isPristine: () => JSON.stringify(state) === JSON.stringify(createDefaults()),
       validate: (value, base) => validateAndMerge(value, base || createDefaults()),
       blocked: () => persistenceBlocked,
+      settled: cloudSettled,
       lock: locked => {
         cloudLocked = locked;
         budgetView?.setLocked(locked || persistenceBlocked);
-        document.querySelectorAll('#task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked; });
+        document.querySelectorAll('#task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, [data-palsibo-check], #buylist-list .item-actions button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked; });
       },
       receive: next => {
         // Persist before replacing the visible draft: quota errors preserve local work.
@@ -1029,6 +1197,8 @@
         setSaveStatus('클라우드 기록을 이 기기에 백업함', false);
       }
     });
+
+    queueMicrotask(migratePalsibo);
 
     // Browser tools use the same locally stored state as the visible UI.
     if (document.modelContext?.registerTool) {

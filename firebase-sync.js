@@ -115,6 +115,7 @@
     function show() {
       if (!ready || halted || resolving) return;
       message(sending ? '클라우드 저장 확인 중 · 이 기기에도 백업됨' : dirty() ? (online ? '클라우드 저장 대기 · 이 기기에도 백업됨' : '오프라인 · 변경을 이 기기에 보관 중') : online ? '공유 기록 동기화됨 · 이 링크를 받은 사람과 함께 사용' : '오프라인 · 마지막 기록을 이 기기에 보관 중');
+      if (online && !sending && !dirty() && !forceWrite) ui.settled?.(copy(baseState));
     }
     function pause(error) {
       halted = true; ready = false; clearTimeout(timer); retry.hidden = false; ui.lock(false);
@@ -307,7 +308,7 @@
       share.addEventListener('click', async () => {
         if (!shared) return;
         const url = new URL(window.location.href);
-        url.hash = '';
+        url.hash = url.searchParams.get('shopping') === 'palsibo-20261026' ? 'buylist' : '';
         try {
           await navigator.clipboard.writeText(url.href);
           share.textContent = '공유 링크 복사됨';
@@ -344,6 +345,7 @@
     return {
       connected: () => Boolean(shared && ready && !halted),
       pause,
+      confirmCurrent: show,
       record() {
         if (ready && !halted && !resolving) { show(); schedule(); }
       }
