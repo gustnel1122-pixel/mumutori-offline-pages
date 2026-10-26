@@ -87,6 +87,9 @@
 .buylist-info,.buylist-links,.buylist-editor{min-width:0}
 .buylist-links{display:flex;flex-direction:column;gap:6px;margin-top:10px;overflow-wrap:anywhere}
 .buylist-links a{max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+.buylist-card-links{flex-direction:row;flex-wrap:wrap;gap:8px}
+.buylist-card-links a{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--white);font-size:14px}
+.buylist-memo-preview{margin-top:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:1.7;color:var(--muted)}
 .buylist-editor{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--white)}
 .buylist-editor>summary{cursor:pointer;min-height:32px;font-weight:600;line-height:32px}
 .buylist-editor .editor-field{margin-top:12px;min-width:0}

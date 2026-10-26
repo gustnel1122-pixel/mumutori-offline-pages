@@ -79,15 +79,23 @@
       if (!save()) { state = previous; syncDefinitions(); throw new Error('저장하지 못했어요. 입력 내용을 복사해 보관하고 저장 상태를 확인해 주세요.'); }
       syncDefinitions();
     }
-    function purchaseLinks(links) {
-      const box = node('div', 'buylist-links');
-      links.forEach(href => {
-        const link = node('a', 'buylist-link', href);
+    function purchaseLinks(links, compact = false) {
+      const box = node('div', 'buylist-links' + (compact ? ' buylist-card-links' : ''));
+      box.hidden = !links.length;
+      links.forEach((href, index) => {
+        const label = compact ? '판매처 열기' + (links.length > 1 ? ' ' + (index + 1) : '') + ' ↗' : href;
+        const link = node('a', 'buylist-link', label);
         link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
         link.setAttribute('aria-label', '판매처 열기 · ' + href + ' (새 창)');
         box.append(link);
       });
       return box;
+    }
+
+    function purchaseMemoPreview(memo) {
+      const preview = node('p', 'buylist-memo-preview', memo);
+      preview.hidden = !memo.trim();
+      return preview;
     }
 
     // Untouched catalogue rows stay virtual. Opening a page never replaces the
@@ -782,7 +790,8 @@
       const item = purchaseItems().find(entry => entry.id === id); if (!item) return;
       const fields = purchaseInfo(item);
       const row = byId('buylist-list')?.querySelector('[data-buylist-row="' + id + '"]');
-      row?.querySelector('.buylist-links')?.replaceWith(purchaseLinks(fields.links));
+      row?.querySelector('.buylist-card-links')?.replaceWith(purchaseLinks(fields.links, true));
+      row?.querySelector('.buylist-memo-preview')?.replaceWith(purchaseMemoPreview(fields.memo));
       const title = row?.querySelector('.buylist-name');
       if (title) {
         title.replaceChildren();
@@ -879,7 +888,7 @@
           if (fields.links[0]) {
             const link = node('a', 'buylist-link', item.name); link.href = fields.links[0]; link.target = '_blank'; link.rel = 'noopener noreferrer'; title.append(link);
           } else title.textContent = item.name;
-          info.append(title);
+          info.append(title, purchaseLinks(fields.links, true), purchaseMemoPreview(fields.memo));
           if (item.use) info.append(node('p', 'buylist-use', item.use));
           if (item.note) info.append(node('p', 'buylist-memo', item.note));
           if (trip && item.figure) info.append(node('p', 'buylist-memo', '그림 자리 · ' + item.figure));
@@ -908,7 +917,6 @@
           if (item.logo) meta.append(node('span', 'tag' + (item.logo === '필요' ? ' tag-logo' : ''), '로고 ' + item.logo));
           if (item.chip) meta.append(node('span', 'tag ' + (item.chipKind === 'ask' ? 'tag-ask' : 'tag-ok'), item.chip));
           if (meta.childNodes.length) info.append(meta);
-          info.append(purchaseLinks(fields.links));
           const editor = purchaseEditor(item, item.name); editor.open = expanded.has(item.id); info.append(editor);
           const price = node('p', 'buylist-price', trip || custom ? record.quantity || item.qty || '' : item.price || '가격은 판매처에서 확인');
           const side = node('div', 'buylist-side');
