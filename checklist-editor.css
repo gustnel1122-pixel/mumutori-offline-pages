@@ -82,3 +82,19 @@
 #palsibo-tools{flex-wrap:wrap;margin:14px 0}
 #palsibo-copy-fallback{width:100%;max-width:100%}
 .buylist-field-note{margin-top:8px}
+
+/* Links and notes share the existing preparation record. */
+.buylist-info,.buylist-links,.buylist-editor{min-width:0}
+.buylist-links{display:flex;flex-direction:column;gap:6px;margin-top:10px;overflow-wrap:anywhere}
+.buylist-links a{max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+.buylist-editor{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--white)}
+.buylist-editor>summary{cursor:pointer;min-height:32px;font-weight:600;line-height:32px}
+.buylist-editor .editor-field{margin-top:12px;min-width:0}
+.buylist-editor textarea{width:100%;max-width:100%;min-height:76px;resize:vertical;padding:10px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:16px;line-height:1.6}
+.buylist-editor textarea[aria-invalid=true]{border-color:#a83b2d}
+.buylist-field-help{display:block;margin-top:6px;font-size:12px;line-height:1.65;color:var(--muted);overflow-wrap:anywhere}
+.buylist-editor .editor-error{margin-top:4px;font-size:12px;white-space:pre-wrap}
+.buylist-add-row{padding:18px 0;border-top:1px solid var(--line)}
+.buylist-add-row button{min-height:44px}
+#buylist-copy-scope{margin:8px 0}
+@media(max-width:760px){.buylist-editor{padding:10px}.buylist-editor textarea{font-size:16px}.buylist-add-row button{width:100%}.buylist-row>*{min-width:0}}
