@@ -51,6 +51,7 @@
     let cloud = null;
     let cloudLocked = false;
     let budgetView = null;
+    let preparationView = null;
     let state = createDefaults();
     const palsibo = window.PalsiboMigration;
     const tripItems = palsibo ? palsibo.items(window.OFFLINE_BUYLIST) : [];
@@ -1007,6 +1008,7 @@
     });
 
     function renderInventorySummary(skipBuylist = false) {
+      if (preparationView) { preparationView.render(); return; }
       const entries = inventoryEntries();
       const prepared = entries.filter(item => inventoryRecord(item).status === '준비 완료').length;
       textAt('inventory-summary', prepared + ' / ' + entries.length + ' 품목 준비 완료');
@@ -1014,6 +1016,7 @@
     }
 
     function renderInventory(skipBuylist = false) {
+      if (preparationView) { preparationView.render(); budgetView?.render(); return; }
       if (!elements.inventoryList) return;
       const fragment = document.createDocumentFragment();
       inventoryEntries().filter(item => (activeInventoryCategory === '전체' || item.category === activeInventoryCategory) && (!inventoryQuery || [item.name, item.category, item.detail, item.priority].join(' ').toLocaleLowerCase('ko').includes(inventoryQuery))).forEach((item) => {
@@ -1284,6 +1287,25 @@
       });
     }
 
+    if (window.createPreparationView && byId('preparation')) preparationView = window.createPreparationView({
+      element: byId('preparation'), getState: () => state,
+      source: purchaseSource,
+      defaults: seedInventory.concat(purchaseSource.filter(item => !seedInventory.some(entry => entry.id === item.id)).map(purchaseDefault)),
+      isLocked: () => cloudLocked || persistenceBlocked,
+      save: next => { storePurchase(next); budgetView?.render(); }, notify,
+    });
+    const prepareHash = () => {
+      if (/^#(?:buylist(?:-.*)?|inventory)$/.test(location.hash)) {
+        history.replaceState(null, '', location.pathname + location.search + '#preparation');
+        byId('preparation')?.scrollIntoView({block:'start'});
+      }
+    };
+    window.addEventListener('hashchange', prepareHash);
+    window.addEventListener('load', () => {
+      prepareHash();
+      if (location.hash === '#preparation') byId('preparation')?.scrollIntoView({block:'start',behavior:'instant'});
+    }, {once:true});
+    prepareHash();
     installEditors();
     syncDefinitions();
     renderFilters();
@@ -1314,8 +1336,9 @@
       settled: cloudSettled,
       lock: locked => {
         cloudLocked = locked;
+        preparationView?.setLocked();
         budgetView?.setLocked(locked || persistenceBlocked);
-        document.querySelectorAll('#task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, [data-palsibo-check], #buylist-list .item-actions button, #buylist-list textarea, #buylist-list button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked || persistenceBlocked; });
+        document.querySelectorAll('#preparation [data-prep-control], .prep-dialog [data-prep-control], #task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, [data-palsibo-check], #buylist-list .item-actions button, #buylist-list textarea, #buylist-list button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked || persistenceBlocked; });
       },
       receive: next => {
         // Persist before replacing the visible draft: quota errors preserve local work.

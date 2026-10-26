@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const B = require('../buylist-state.js');
+const P = require('../preparation-state.js');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'firebase-sync.js'), 'utf8');
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -128,6 +129,7 @@ async function client(server, initial = state()) {
   return {cloud, peer, document, acknowledgements, receipts, locks,
     getState: () => clone(current),
     change(patch) { const {note, ...record} = patch; current.inventory[itemId] = {...current.inventory[itemId], ...record}; if (note !== undefined) current.definitions.inventory.find(item => item.id === itemId).detail = note; cloud.record(); },
+    editPreparation(patch, actor) { const row = P.rows(current, [], [], [])[0]; current = P.update(current, row, patch, actor); cloud.record(); },
     editPurchase(item, patch) { current = B.update(current, item, patch); cloud.record(); },
     addPurchase(group, fields) { current = B.add(current, group, fields); cloud.record(); },
     editInventory(id, patch) { current.inventory[id] = {...current.inventory[id], ...patch}; cloud.record(); },
@@ -254,4 +256,18 @@ test('editing purchase links and memo during a pending transaction settles only 
   assert.deepEqual(B.read(purchaseItem, confirmed.definitions.inventory.find(entry => entry.id === purchaseItem.id)), {links: purchaseUrls, memo: '두 번째 입력\n최종 메모', override: true});
   assert.deepEqual(confirmed, device.getState());
   assert.equal(server.commits, 2);
+});
+
+
+test('two clients share preparation decisions, actor, opinion and progress using the existing Firebase contract', async () => {
+  const server = new Server(state()), first = await client(server), second = await client(server);
+  first.editPreparation({decision:'yes',comment:'함께 쓰자',amount:12000},'사장님');
+  await first.flush(); server.commitNext(); await settle();
+  let row=P.rows(second.getState(),[],[],[])[0];
+  assert.equal(row.decision,'yes'); assert.equal(row.by,'사장님'); assert.equal(row.comment,'함께 쓰자');
+  second.editPreparation({decision:'hold',comment:'크기를 먼저 재자',progress:'주문함'},'다희');
+  await second.flush(); server.commitNext(); await settle();
+  row=P.rows(first.getState(),[],[],[])[0];
+  assert.equal(row.decision,'hold'); assert.equal(row.by,'다희'); assert.equal(row.comment,'크기를 먼저 재자');
+  assert.equal(row.progress,'주문함'); assert.equal(row.amount,12000); assert.equal(server.commits,2);
 });
