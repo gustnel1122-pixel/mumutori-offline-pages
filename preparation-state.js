@@ -1,4 +1,4 @@
-(function(factory){const api=factory(typeof module==='object'?require('./buylist-state.js'):window.OfflineBuylistState);if(typeof module==='object')module.exports=api;if(typeof window==='object')window.OfflinePreparationState=api;})(function(B){
+(function(factory){const api=factory(typeof module==='object'?require('./buylist-state.js'):window.OfflineBuylistState,typeof module==='object'?require('./preparation-images.js'):window.OfflinePreparationImages);if(typeof module==='object')module.exports=api;if(typeof window==='object')window.OfflinePreparationState=api;})(function(B,I){
 'use strict';
 const PREFIX='[[MUMUTORI_PREPARATION:1]]\n', END='\n[[/MUMUTORI_PREPARATION]]\n';
 const decisions=['','yes','hold','no'], progress=['미정','장바구니','결제완료','배송중','도착','설치 끝','안 삼'];
@@ -8,7 +8,8 @@ const paidProgress=['결제완료','배송중','도착','설치 끝'];
 const copy=x=>JSON.parse(JSON.stringify(x));
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 function validateMeta(m){
- if(!m||typeof m!=='object'||Array.isArray(m)||Object.keys(m).some(k=>!['decision','by','comment','at','choice','amount','progress','name','use','zone','quantity','essential','previousProgress','posConfirmed'].includes(k)))throw Error('기록 형식을 확인해 주세요. 기존 내용은 보존됩니다.');
+ if(!m||typeof m!=='object'||Array.isArray(m)||Object.keys(m).some(k=>!['decision','by','comment','at','choice','amount','progress','name','use','zone','quantity','essential','previousProgress','posConfirmed','photos'].includes(k)))throw Error('기록 형식을 확인해 주세요. 기존 내용은 보존됩니다.');
+ if(own(m,'photos'))I.validate(m.photos);
  if(own(m,'decision')&&!decisions.includes(m.decision))throw Error('결정을 확인해 주세요.');
  if(own(m,'by')&&!['사장님','다희'].includes(m.by))throw Error('작성하는 사람을 골라 주세요.');
  for(const key of ['progress','previousProgress'])if(own(m,key)&&!progress.includes(normalizeProgress(m[key])))throw Error('진행 상태를 확인해 주세요.');
@@ -31,7 +32,7 @@ function sourceEntries(state,source,defaults){
  source.forEach(x=>{if(!result.has(x.id))result.set(x.id,copy(fallback.get(x.id)||B.definition(x)));});
  return result;
 }
-function rows(state,source,defaults,groups){
+function rows(state,source,defaults,groups,photoCatalogue={}){
  const entries=sourceEntries(state,source,defaults),bySource=new Map(source.map(x=>[x.id,x])),seen=new Set();
  const result=[];
  function make(group){
@@ -49,8 +50,8 @@ function rows(state,source,defaults,groups){
   const decision=posConfirmed?'yes':meta.decision??(group.archived?'no':'');
   const currentProgress=posConfirmed?'설치 끝':decision==='no'?'안 삼':normalizeProgress(meta.progress)||inferred;
   result.push({...group,ids,records,anchor:anchor.id,choices,selected,decision,by:meta.by||'',comment:meta.comment||'',at:meta.at||'',amount:meta.amount??null,essential:meta.essential??group.essential??true,
-   name:meta.name||group.name,use:meta.use||group.use,zone:meta.zone||group.zone,quantity:meta.quantity??picked.record.quantity,progress:currentProgress,
-   links:[...new Set(linkRecords.flatMap(x=>x.links))],memo:picked.memo,thumbnail:records.find(x=>x.item.image)?.item.image||'',error:anchor.error,meta});
+   name:meta.name||group.name,use:meta.use||group.use,zone:meta.zone||group.zone,quantity:meta.quantity??picked.record.quantity,progress:currentProgress,bought:paidProgress.includes(currentProgress)&&decision!=='no',
+   links:[...new Set(linkRecords.flatMap(x=>x.links))],photos:own(meta,'photos')?meta.photos:[...new Set((selected?[picked]:records).flatMap(r=>photoCatalogue[r.id]||[]))],memo:picked.memo,thumbnail:records.find(x=>x.item.image)?.item.image||'',error:anchor.error,meta});
  }
  groups.forEach(make);
  for(const [id,entry] of entries)if(!seen.has(id))make({id:'extra-'+id,name:entry.name.replace(/ 후보/g,''),use:'직접 추가한 준비물 · 펼쳐서 내용을 적어 주세요',zone:entry.category,ids:[id],choices:[],archived:entry.category==='이전 안·제외'});

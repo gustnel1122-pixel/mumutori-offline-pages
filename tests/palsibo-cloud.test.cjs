@@ -271,3 +271,5 @@ test('two clients share preparation decisions, actor, opinion and progress using
   assert.equal(row.decision,'hold'); assert.equal(row.by,'다희'); assert.equal(row.comment,'크기를 먼저 재자');
   assert.equal(row.progress,'배송중'); assert.equal(row.essential,false); assert.equal(row.amount,12000); assert.equal(server.commits,2);
 });
+
+test('two clients share v3 photo URLs and payment checks without changing Firebase record shape',async()=>{const server=new Server(state()),a=await client(server),b=await client(server);a.editPreparation({photos:['https://example.test/photo.jpg'],progress:'결제완료'},'사장님');await a.flush();server.commitNext();await settle();let r=P.rows(b.getState(),[],[],[])[0];assert.deepEqual(r.photos,['https://example.test/photo.jpg']);assert.equal(r.bought,true);b.editPreparation({comment:'사진 확인',progress:'배송중'},'다희');await b.flush();server.commitNext();await settle();r=P.rows(a.getState(),[],[],[])[0];assert.equal(r.photos.length,1);assert.equal(r.comment,'사진 확인');assert.equal(r.bought,true);});
