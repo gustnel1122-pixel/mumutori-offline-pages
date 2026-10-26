@@ -265,9 +265,9 @@ test('two clients share preparation decisions, actor, opinion and progress using
   await first.flush(); server.commitNext(); await settle();
   let row=P.rows(second.getState(),[],[],[])[0];
   assert.equal(row.decision,'yes'); assert.equal(row.by,'사장님'); assert.equal(row.comment,'함께 쓰자');
-  second.editPreparation({decision:'hold',comment:'크기를 먼저 재자',progress:'주문함'},'다희');
+  second.editPreparation({decision:'hold',comment:'크기를 먼저 재자',progress:'배송중',essential:false},'다희');
   await second.flush(); server.commitNext(); await settle();
   row=P.rows(first.getState(),[],[],[])[0];
   assert.equal(row.decision,'hold'); assert.equal(row.by,'다희'); assert.equal(row.comment,'크기를 먼저 재자');
-  assert.equal(row.progress,'주문함'); assert.equal(row.amount,12000); assert.equal(server.commits,2);
+  assert.equal(row.progress,'배송중'); assert.equal(row.essential,false); assert.equal(row.amount,12000); assert.equal(server.commits,2);
 });

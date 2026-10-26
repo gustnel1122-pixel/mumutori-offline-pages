@@ -63,6 +63,10 @@
   add('wood-decoration','작은 나무 장식','매장에 놓을 작은 장식','상품 진열',['item-20']);
   add('cleaning','청소·전선 정리 도구','매장을 청소하고 전선을 정리해요','창고',['item-15']);
   add('old-letter','이전 편지 운영 용품','예전에 사용하지 않기로 한 안내·보관 용품 기록','레터 코너',['item-11','item-31','item-32','item-35','item-36','item-37'],[],true);
+  // Opening essentials only; optional source records stay intact and can be promoted.
+  const essentials=new Set(['central-table','left-cabinets','right-cabinets','signs','pos','letter-desk','letter-stool','letter-mailbox','typewriter','letter-paper','cargo','display-tools','opp-bags','shopping-bags','cleaning','interior','printer','label-paper']);
+  rows.forEach(row=>{row.essential=essentials.has(row.id);});
+  rows.find(row=>row.id==='pos').use='끝 · 서류와 신청 완료 (10/26 사장님 확인)';
   root.OFFLINE_PREPARATION_GROUPS=rows;
   if(typeof module==='object')module.exports=rows;
 })(typeof window==='object'?window:globalThis);
