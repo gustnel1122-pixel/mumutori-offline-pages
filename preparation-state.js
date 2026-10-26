@@ -32,7 +32,7 @@ function sourceEntries(state,source,defaults){
  source.forEach(x=>{if(!result.has(x.id))result.set(x.id,copy(fallback.get(x.id)||B.definition(x)));});
  return result;
 }
-function rows(state,source,defaults,groups,photoCatalogue={}){
+function rows(state,source,defaults,groups,photoCatalogue={},examples={}){
  const entries=sourceEntries(state,source,defaults),bySource=new Map(source.map(x=>[x.id,x])),seen=new Set();
  const result=[];
  function make(group){
@@ -49,9 +49,13 @@ function rows(state,source,defaults,groups,photoCatalogue={}){
   const posConfirmed=group.id==='pos'&&!meta.posConfirmed;
   const decision=posConfirmed?'yes':meta.decision??(group.archived?'no':'');
   const currentProgress=posConfirmed?'설치 끝':decision==='no'?'안 삼':normalizeProgress(meta.progress)||inferred;
+  const candidate=examples[group.id];
+  const example=candidate&&(!selected||selected===candidate.sourceId)?candidate:null;
+  const cataloguePhotos=(selected?[picked]:records).flatMap(r=>photoCatalogue[r.id]||[]);
+  const photos=own(meta,'photos')?meta.photos:[...new Set([...(example?[example.image]:[]),...cataloguePhotos])];
   result.push({...group,ids,records,anchor:anchor.id,choices,selected,decision,by:meta.by||'',comment:meta.comment||'',at:meta.at||'',amount:meta.amount??null,essential:meta.essential??group.essential??true,
    name:meta.name||group.name,use:meta.use||group.use,zone:meta.zone||group.zone,quantity:meta.quantity??picked.record.quantity,progress:currentProgress,bought:paidProgress.includes(currentProgress)&&decision!=='no',
-   links:[...new Set(linkRecords.flatMap(x=>x.links))],photos:own(meta,'photos')?meta.photos:[...new Set((selected?[picked]:records).flatMap(r=>photoCatalogue[r.id]||[]))],memo:picked.memo,thumbnail:records.find(x=>x.item.image)?.item.image||'',error:anchor.error,meta});
+   links:[...new Set(linkRecords.flatMap(x=>x.links))],photos,example,examplePhoto:!!example&&!own(meta,'photos')&&photos[0]===example.image,memo:picked.memo,thumbnail:records.find(x=>x.item.image)?.item.image||'',error:anchor.error,meta});
  }
  groups.forEach(make);
  for(const [id,entry] of entries)if(!seen.has(id))make({id:'extra-'+id,name:entry.name.replace(/ 후보/g,''),use:'직접 추가한 준비물 · 펼쳐서 내용을 적어 주세요',zone:entry.category,ids:[id],choices:[],archived:entry.category==='이전 안·제외'});
