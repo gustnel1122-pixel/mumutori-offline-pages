@@ -29,3 +29,6 @@ body{font-size:16px}.site-header{height:86px}.site-header .wordmark{display:flex
 
 /* Account sync controls */
 .sidebar-cloud-link{display:inline-block;margin-top:7px;color:#6a3906;font-weight:700;text-underline-offset:3px}.cloud-panel{scroll-margin-top:40px}.cloud-actions button{white-space:nowrap}.cloud-actions select{max-width:260px;border:1px solid #d7c7b6;border-radius:6px;padding:8px;background:#fffdf8;color:#684729}.cloud-panel [hidden]{display:none!important}#cloud-status{font-weight:700;overflow-wrap:anywhere}.cloud-actions button:disabled{opacity:.55;cursor:wait}@media(max-width:900px){.cloud-panel{scroll-margin-top:90px}.cloud-actions select{max-width:100%;width:100%}}
+
+/* Two-person preparation, 2026-10-27 */
+.plan-history{display:block;font-size:.86rem;margin:1rem 0;color:#62534a}.plan-history input{margin-right:.5rem}.task-more{margin-top:.5rem}.task-more summary{font-size:.8rem;cursor:pointer;color:#756558}.task-more .task-detail{margin-top:.5rem}#timeline .phase-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#checklist .task-row{padding-block:1rem}#checklist .task-dependencies{font-size:.75rem}.sidebar-nav a span{min-width:2.5rem}@media(max-width:700px){#timeline .phase-grid{grid-template-columns:1fr}}

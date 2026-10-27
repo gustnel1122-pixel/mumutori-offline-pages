@@ -1,0 +1,20 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const P = require('../two-person-plan.js');
+test('current plan preserves shared tasks, custom edits and historical records', () => {
+  const seeds = [{id:'design-03',title:'옛 제목',owner:'업체',dependsOn:['research-01']}, {id:'research-01',title:'자료',owner:'자료 확인 완료'}];
+  const tasks = structuredClone(seeds);
+  tasks.push({id:'custom',title:'다희 목업',owner:'다희'});
+  const before = structuredClone(tasks);
+  const current = P.tasks(tasks,seeds,false);
+  assert.equal(current.length,2);
+  assert.equal(current[0].title,'도면과 목업을 합쳐 배치 검토');
+  assert.equal(current[0].owner,'둘이');
+  assert.deepEqual(tasks,before);
+  assert.equal(P.tasks(tasks,seeds,true).length,3);
+  tasks[0].title='현장에서 바꾼 제목'; tasks[0].owner='다희';
+  assert.equal(P.tasks(tasks,seeds,false)[0].title,'현장에서 바꾼 제목');
+  assert.equal(P.tasks(tasks,seeds,false)[0].owner,'다희');
+  tasks.shift();
+  assert(!P.tasks(tasks,seeds,false).some(t=>t.id==='design-03'));
+});

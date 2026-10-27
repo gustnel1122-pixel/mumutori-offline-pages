@@ -494,7 +494,7 @@
       const newCategory = formField(grid, '새 분류로 저장', { max: 60, placeholder: '필요할 때만 입력', help: '입력하면 왼쪽 선택 대신 새 분류를 사용합니다.' });
       const priority = formField(grid, '중요도', { value: entry?.priority || '선택', max: 80, placeholder: '예: 필수, 선택, 확인 완료' });
       let owner, quantity, status;
-      if (task) owner = formField(grid, '담당자', { value: entry?.owner, max: 160, placeholder: '예: 무무토리 · 제작 업체' });
+      if (task) owner = formField(grid, '담당자', { type: 'select', items: window.OfflineTwoPerson.owners, value: window.OfflineTwoPerson.owner(entry) });
       else {
         quantity = formField(grid, '수량 / 규격 메모', { value: originalRecord?.quantity || '', max: MAX_QUANTITY_LENGTH });
         status = formField(grid, '준비 상태', { type: 'select', items: INVENTORY_STATUSES, value: originalRecord?.status || '검토' });
@@ -655,10 +655,13 @@
       if (exportButton?.parentElement) exportButton.parentElement.append(restore);
     }
 
+    function planTasks() { return window.OfflineTwoPerson.tasks(data.tasks, seedTasks, Boolean(byId('task-history')?.checked)); }
+
     function renderProgress() {
-      const completed = data.tasks.filter((task) => state.tasks[task.id]).length;
-      const percent = data.tasks.length ? Math.round(completed / data.tasks.length * 100) : 0;
-      textAt('progress-count', completed + ' / ' + data.tasks.length);
+      const tasks = planTasks();
+      const completed = tasks.filter((task) => state.tasks[task.id]).length;
+      const percent = tasks.length ? Math.round(completed / tasks.length * 100) : 0;
+      textAt('progress-count', completed + ' / ' + tasks.length);
       textAt('progress-percent', percent + '%');
       const bar = byId('progress-bar');
       if (bar) {
@@ -668,22 +671,24 @@
           progress.setAttribute('aria-valuemin', '0');
           progress.setAttribute('aria-valuemax', '100');
           progress.setAttribute('aria-valuenow', String(percent));
-          progress.setAttribute('aria-valuetext', data.tasks.length + '개 중 ' + completed + '개 완료');
+          progress.setAttribute('aria-valuetext', tasks.length + '개 중 ' + completed + '개 완료');
         }
       }
     }
+
+    byId('task-history')?.addEventListener('change', () => { activeCategory = '전체'; priorityFilter = '전체'; dueFilter = '전체'; if (byId('task-due-filter')) byId('task-due-filter').value = '전체'; renderFilters(); renderTasks(); });
 
     function renderFilters() {
       if (!elements.filters) return;
       elements.filters.replaceChildren();
       const prioritySelect = byId('task-priority-filter');
       if (prioritySelect) {
-        const priorities = ['전체', ...new Set(data.tasks.map(task => task.priority).filter(Boolean))];
+        const priorities = ['전체', ...new Set(planTasks().map(task => task.priority).filter(Boolean))];
         if (!priorities.includes(priorityFilter)) priorityFilter = '전체';
         prioritySelect.replaceChildren(...priorities.map(priority => { const option = node('option', '', priority); option.value = priority; return option; }));
         prioritySelect.value = priorityFilter;
       }
-      ['전체', ...state.definitions.taskCategories].forEach((category) => {
+      ['전체', ...new Set(planTasks().map(task => task.category))].forEach((category) => {
         const button = node('button', 'filter-button' + (category === activeCategory ? ' active' : ''), category);
         button.type = 'button';
         button.dataset.category = category;
@@ -699,7 +704,7 @@
       const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
       const nextWeek = new Date(today + 'T00:00:00Z'); nextWeek.setUTCDate(nextWeek.getUTCDate() + 7);
       const nextWeekDate = nextWeek.toISOString().slice(0, 10);
-      const visible = data.tasks.filter((task) => {
+      const visible = planTasks().filter((task) => {
         const searchText = [task.title, task.category, task.owner, task.detail, task.priority].join(' ').toLocaleLowerCase('ko');
         const dueMatches = dueFilter === '전체' || (dueFilter === '기한 없음' && !task.dueDate) || (dueFilter === '기한 지남' && task.dueDate && task.dueDate < today && !state.tasks[task.id]) || (dueFilter === '7일 이내' && task.dueDate && task.dueDate >= today && task.dueDate <= nextWeekDate);
         return (activeCategory === '전체' || task.category === activeCategory) && (priorityFilter === '전체' || task.priority === priorityFilter) && dueMatches &&
@@ -726,7 +731,7 @@
         if (task.owner) meta.append(node('span', 'owner', task.owner));
         if (task.dueDate) meta.append(node('span', 'task-due' + (!done && task.dueDate < today ? ' task-overdue' : ''), '기한 ' + task.dueDate.replaceAll('-', '.') + (!done && task.dueDate < today ? ' · 지남' : '')));
         info.append(label, meta);
-        if (task.detail) info.append(detailNode(task.detail));
+        const details = node('details', 'task-more'); details.append(node('summary', '', '상세 기록')); if (task.detail) details.append(detailNode(task.detail));
         const referenceValue = window.OFFLINE_TASK_REFERENCES?.[task.id];
         const references = referenceValue ? (Array.isArray(referenceValue) ? referenceValue : [referenceValue]) : [];
         if (references.length) {
@@ -740,7 +745,7 @@
             link.href = value; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.style.marginRight = '1rem';
             links.append(link);
           });
-          info.append(links);
+          details.append(links);
         }
         const dependencies = (task.dependsOn || []).filter((id) => taskTitles.has(id));
         if (dependencies.length) {
@@ -748,14 +753,15 @@
           const dependencyText = remaining.length
             ? '먼저 확인 · ' + remaining.map((id) => taskTitles.get(id)).join(' / ')
             : '선행 작업 확인 완료';
-          info.append(node('p', 'task-dependencies' + (remaining.length ? '' : ' dependencies-done'), dependencyText));
+          details.append(node('p', 'task-dependencies' + (remaining.length ? '' : ' dependencies-done'), dependencyText));
         }
+        if (details.children.length > 1) info.append(details);
         row.append(check, info, itemActions('tasks', task));
         fragment.append(row);
       });
       if (!visible.length) fragment.append(node('p', 'empty-state', '조건에 맞는 항목이 없습니다. 검색어나 필터를 바꿔 보세요.'));
       elements.taskList.replaceChildren(fragment);
-      textAt('task-summary', visible.length + '개 표시 · 전체 ' + data.tasks.length + '개');
+      textAt('task-summary', visible.length + '개 표시 · ' + (byId('task-history')?.checked ? '이전 기록 포함' : '두 사람의 현재 할 일'));
       renderProgress();
     }
 
