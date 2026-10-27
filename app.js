@@ -53,6 +53,7 @@
     let budgetView = null;
     let preparationView = null;
     let productionView = null;
+    let orderView = null;
     let state = createDefaults();
     const palsibo = window.PalsiboMigration;
     const tripItems = palsibo ? palsibo.items(window.OFFLINE_BUYLIST) : [];
@@ -1024,6 +1025,7 @@
 
     function renderInventory(skipBuylist = false) {
       productionView?.render();
+      orderView?.render();
       if (preparationView) { preparationView.render(); budgetView?.render(); return; }
       if (!elements.inventoryList) return;
       const fragment = document.createDocumentFragment();
@@ -1295,9 +1297,9 @@
       });
     }
 
-    if (window.createProductionView) productionView = window.createProductionView({getState:()=>state, isLocked:()=>cloudLocked || persistenceBlocked, save:next=>{storePurchase(next);preparationView?.render();}, notify});
+    if (!window.createOrderView && window.createProductionView) productionView = window.createProductionView({getState:()=>state, isLocked:()=>cloudLocked || persistenceBlocked, save:next=>{storePurchase(next);preparationView?.render();}, notify});
 
-    if (window.createPreparationView && byId('preparation')) preparationView = window.createPreparationView({
+    if (!window.createOrderView && window.createPreparationView && byId('preparation')) preparationView = window.createPreparationView({
       element: byId('preparation'), getState: () => state,
       source: purchaseSource,
       defaults: seedInventory.concat(purchaseSource.filter(item => !seedInventory.some(entry => entry.id === item.id)).map(purchaseDefault)),
@@ -1316,6 +1318,11 @@
       if (location.hash === '#preparation') byId('preparation')?.scrollIntoView({block:'start',behavior:'instant'});
     }, {once:true});
     prepareHash();
+    if (window.createOrderView) orderView = window.createOrderView({
+      getState:()=>state, isLocked:()=>cloudLocked || persistenceBlocked,
+      oldRows:()=>window.OfflinePreparationState.rows(state,purchaseSource,seedInventory.concat(purchaseSource.filter(item=>!seedInventory.some(entry=>entry.id===item.id)).map(purchaseDefault)),window.OFFLINE_PREPARATION_GROUPS,window.OFFLINE_PREPARATION_PHOTOS,window.OFFLINE_PREPARATION_EXAMPLES),
+      save:next=>storePurchase(next), notify
+    });
     installEditors();
     syncDefinitions();
     renderFilters();
@@ -1348,6 +1355,7 @@
         cloudLocked = locked;
         preparationView?.setLocked();
         productionView?.setLocked();
+        orderView?.setLocked();
         budgetView?.setLocked(locked || persistenceBlocked);
         document.querySelectorAll('#preparation [data-prep-control], .prep-dialog [data-prep-control], #task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, [data-palsibo-check], #buylist-list .item-actions button, #buylist-list textarea, #buylist-list button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked || persistenceBlocked; });
       },
@@ -1373,6 +1381,7 @@
           const restored = document.querySelector(locator);
           if (restored) { restored.focus({preventScroll:true}); if (selection && restored.setSelectionRange) restored.setSelectionRange(...selection); }
         }
+        orderView?.render();
         setSaveStatus('클라우드 기록을 이 기기에 백업함', false);
       }
     });

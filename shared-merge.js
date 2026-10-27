@@ -4,6 +4,15 @@
  const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
  const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
  function merge(base,local,remote){
+  const prefix='[[MUMUTORI_ORDER:1]]\n';
+  if(object(local)&&object(remote)&&local.id===remote.id&&typeof local.detail==='string'&&typeof remote.detail==='string'&&local.detail.startsWith(prefix)&&remote.detail.startsWith(prefix)){
+    const parse=x=>x?.detail?.startsWith(prefix)?JSON.parse(x.detail.slice(prefix.length)):{};
+    const values=[parse(base),parse(local),parse(remote)],audit=['by','at','updatedBy','updatedAt'];
+    const clean=v=>Object.fromEntries(Object.entries(v).filter(([k])=>!audit.includes(k)));
+    const merged=merge(...values.map(clean)),latest=[values[1],values[2]].sort((a,b)=>(a.updatedAt||a.at||'').localeCompare(b.updatedAt||b.at||''))[1];
+    audit.forEach(k=>{if(latest[k]!==undefined)merged[k]=latest[k];});
+    return {...remote,name:(merged.name||base?.name||remote.name).slice(0,240),detail:prefix+JSON.stringify(merged)};
+  }
   if(equal(local,base))return copy(remote);
   if(equal(remote,base)||equal(local,remote))return copy(local);
   if([base,local,remote].every(Array.isArray)){

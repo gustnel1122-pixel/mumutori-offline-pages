@@ -13,12 +13,12 @@
     <div class="s3-viewport" tabindex="0" role="application" aria-label="무무토리 공간 3D 보기. 방향키로 회전, 더하기와 빼기로 확대 축소, Home으로 처음 시점. 마우스나 한 손가락으로 돌리고 두 손가락으로 확대할 수 있습니다." aria-describedby="s3-help">
       <div class="s3-grid"></div><canvas class="s3-canvas" aria-hidden="true"></canvas>
       <div class="s3-badge">INTERACTIVE SPACE <span>01</span></div>
-      <div class="s3-floating-note"><i></i>메인 매장만 · 집기 크기는 제안</div>
+      <div class="s3-floating-note"><i></i>메인 매장만 · 확정 가구 규격 · 위치는 검토안</div>
       <div class="s3-zoom" aria-label="확대 축소"><button type="button" data-action="in" aria-label="공간 확대">＋</button><button type="button" data-action="out" aria-label="공간 축소">−</button><button type="button" data-action="reset" aria-label="처음 시점으로 돌아가기">↺</button></div>
       <div class="s3-view-caption" aria-live="polite">전체 공간 · 좌우로 돌려보세요</div>
     </div>
     <div class="s3-under"><p id="s3-help"><strong>드래그해서 회전</strong> · 휠 / 두 손가락으로 확대 · 방향키로 시점 이동</p><span>기존 카운터 + 계단 유지 · 뒤 통로는 창고(직원만)</span></div>
-    <div class="s3-legend"><span><i class="s3-dot s3-dot-butter"></i>버터 매대 2곳</span><span><i class="s3-dot s3-dot-pink"></i>사입 소품 16종</span><span><i class="s3-dot s3-dot-wood"></i>기존 결제 카운터</span><span><i class="s3-dot s3-dot-paper"></i>오른쪽 거울·키링 벽 · 창가 모듈 테이블</span></div>
+    <div class="s3-legend"><span><i class="s3-dot s3-dot-butter"></i>중앙 매대 + 식탁보</span><span><i class="s3-dot s3-dot-pink"></i>사입 소품 16종</span><span><i class="s3-dot s3-dot-wood"></i>기존 결제 카운터</span><span><i class="s3-dot s3-dot-paper"></i>오른쪽 거울·키링 벽 · MORE ARCH 수납장 2개</span></div>
     <details class="s3-assortment"><summary>매대에 놓인 상품 보기 <span>레퍼런스의 실제 판매 상품</span></summary><div class="s3-product-list"></div><p>상품 구성과 수량은 배치 예시입니다. 실제 사입 목록은 체크리스트에서 조정해 주세요.</p></details>`;
   // One canvas draws all projected geometry. No CSS 3D compositor layers.
   const viewport = mount.querySelector('.s3-viewport');
@@ -232,10 +232,31 @@
     const logo=plane('s3-wrapper-logo',x+w*.29,18,z+d/2+1.8,21,21);
     const im=document.createElement('img');im.src='assets/brand-logo.png';im.alt='';im.loading='lazy';logo.appendChild(im);
   }
-  butter(-11,49,226,142,82);
-  butter(-213,12,64,226,72);
-  // Small display risers leave most of the butter top visible.
-  box(-42,85,21,120,6,46,'paper');box(-209,75,-34,49,6,89,'paper');
+  const furnitureGroup={group:'s3-order-furniture'};
+  const furnitureDefaults={center:{x:0,z:70,w:160,d:120,h:85,material:'cloth'},archLeft:{x:-235,z:190,w:31.5,d:120,h:80,material:'butter'},archRight:{x:235,z:-35,w:31.5,d:120,h:80,material:'butter'},teal:{x:221,z:190,w:60,d:200,h:75,material:'teal'}};
+  function orderFurniture(config={}){
+    for(let i=shapes.length-1;i>=0;i--)if(shapes[i].group==='s3-order-furniture')shapes.splice(i,1);
+    for(const [id,base]of Object.entries(furnitureDefaults)){
+      const f={...base,...(config[id]||{})};
+      for(const k of ['x','z','w','d','h'])if(!Number.isFinite(f[k])||Math.abs(f[k])>630)throw Error('3D 가구 좌표를 확인해 주세요.');
+      if(f.w<=0||f.d<=0||f.h<=0)throw Error('가구 크기는 0보다 커야 합니다.');
+      box(f.x,f.h/2,f.z,f.w,f.h,f.d,base.material,'',furnitureGroup);
+      if(id.startsWith('arch'))box(f.x,f.h/2,f.z,f.w+1,2,f.d+1,'paper','',furnitureGroup);
+    }
+    draw();
+  }
+  colors.cloth='#eee4cd';
+  orderFurniture();
+  label('가운데 A+B · 식탁보',0,125,60);
+  label('MORE ARCH · 왼쪽',-190,120,190);
+  label('MORE ARCH · 안쪽 오른쪽',185,120,-35);
+  label('원래 청록 테이블',205,118,240);
+  function orderArtwork(art={}){
+    for(let i=shapes.length-1;i>=0;i--)if(shapes[i].group==='s3-order-art')shapes.splice(i,1);
+    const slots={cloth:[0,85.8,70,160,120,'rotateX(90deg)'],banner:[-190,170,325,115,120,''],glass:[50,224,320,290,55,''],sign:[-220,251,326,64.3,22.2,'']};
+    for(const[k,url]of Object.entries(art)){if(!slots[k]||!/^https?:/.test(url))continue;const[x,y,z,w,h,rot]=slots[k];const p=plane('s3-order-art',x,y,z,w,h,rot,'',{group:'s3-order-art'});const image=document.createElement('img');image.src=url;image.referrerPolicy='no-referrer';image.alt='';p.appendChild(image);}draw();
+  }
+  window.MumutoriScene={update:orderFurniture,artwork:orderArtwork,defaults:furnitureDefaults};
   // Right wall: existing mirror + keyring hanger (no letter corner — owner decision 2026-10-11).
   plane('s3-mirror',249,126,-150,105,214,'rotateY(-90deg)');
   for(const y of [178,128]){box(246,y,110,4,4,170,'brass');for(let i=0;i<7;i++)box(242,y-5,40+i*23,2,10,2,'brass');}
@@ -244,7 +265,7 @@
   label('거울 · 키링 행거',214,232,30);
   // Two small window module tables (560×370 in the survey sheet).
   for(const x of [40,150]){box(x,28,272,69,56,46,'cream');box(x,57,272,71,3,48,'wood');}
-  label('창가 모듈 테이블',95,96,300);
+  label('MORE ARCH 수납장 2개',95,96,300);
   label('창고·작업실 (직원만)',-193,190,-290,'s3-label-dark');
   // Track lighting: slim rails rather than a roof, keeping the cutaway view readable.
   box(-218,282,-71,4,4,420,'rail');box(213,282,-65,4,4,440,'rail');
@@ -266,7 +287,7 @@
   box(222,48,351,3,90,3,'brass');box(222,3,351,48,5,30,'brass');
   plane('s3-standing-banner',222,74,354,50,80,'','작고 귀여운\n것들의 가게\n\nmumutori');
   const products=[['버터 스틱 말랑이',43],['딸기 동전지갑',44],['군고구마 펜던트',45],['마늘 키링',46],['머쉬룸 펜던트',47],['가지 동전지갑',48],['당근 동전지갑',49],['레몬 키링',50],['생강 키링',51],['고추 키링',52],['감자 키링',53],['토마토 카드 홀더',54],['노란 감자 동전지갑',55],['찹쌀 경단 동전지갑',56],['토스트 동전지갑',57],['식물 모양 키링',58]];
-  const positions=[[-71,88,18,40],[-17,88,18,38],[36,82,21,37],[-63,82,76,37],[-12,82,75,39],[47,82,80,42],[-216,78,-57,35],[-211,78,-7,35],[-212,72,52,35],[-214,72,98,34],[238,145,63,30],[238,145,132,30],[238,95,98,32],[150,59,272,30],[-218,72,-84,30],[40,59,272,32]];
+  const positions=[[-71,88,18,40],[-17,88,18,38],[36,82,21,37],[-63,82,76,37],[-12,82,75,39],[47,82,80,42],[-235,82,150,28],[-235,82,190,28],[-235,82,230,28],[235,82,-35,28],[238,145,63,30],[238,145,132,30],[238,95,98,32],[150,59,272,30],[-218,72,-84,30],[40,59,272,32]];
   products.forEach(([name,num],i)=>{
     const [x,base,z,size]=positions[i];
     const item=plane('s3-product',x,base+size*.5,z,size,size);
@@ -279,7 +300,7 @@
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
   function clearPreset(){mount.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));mount.querySelector('.s3-view-caption').textContent='자유 시점';}
   function zoom(delta){state.zoom=clamp(state.zoom*delta,.55,2.1);draw();}
-  const presets={overview:{rx:-27,ry:27,zoom:1,text:'전체 공간 · 좌우로 돌려보세요'},front:{rx:-12,ry:0,zoom:1.1,text:'입구에서 · 뒤쪽 계단과 카운터 유지'},plan:{rx:-83,ry:0,zoom:.9,text:'위에서 · 중앙 버터 테이블과 벽면 진열의 동선'},keyring:{rx:-20,ry:50,zoom:1.15,text:'키링 벽 · 오른쪽 거울과 키링 행거'}};
+  const presets={overview:{rx:-27,ry:27,zoom:1,text:'전체 공간 · 좌우로 돌려보세요'},front:{rx:-12,ry:0,zoom:1.1,text:'입구에서 · 뒤쪽 계단과 카운터 유지'},plan:{rx:-83,ry:0,zoom:.9,text:'위에서 · 가운데 A·B 매대와 오른쪽 앞 청록 테이블'},keyring:{rx:-20,ry:50,zoom:1.15,text:'키링 벽 · 오른쪽 거울과 키링 행거'}};
   function preset(name){Object.assign(state,presets[name]);mount.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));mount.querySelector('.s3-view-caption').textContent=presets[name].text;draw();}
   mount.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>preset(b.dataset.view)));
   mount.querySelectorAll('[data-option]').forEach(input=>input.addEventListener('change',()=>{state[input.dataset.option]=input.checked;draw();}));
