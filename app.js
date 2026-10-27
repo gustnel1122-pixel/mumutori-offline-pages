@@ -52,6 +52,7 @@
     let cloudLocked = false;
     let budgetView = null;
     let preparationView = null;
+    let productionView = null;
     let state = createDefaults();
     const palsibo = window.PalsiboMigration;
     const tripItems = palsibo ? palsibo.items(window.OFFLINE_BUYLIST) : [];
@@ -1022,6 +1023,7 @@
     }
 
     function renderInventory(skipBuylist = false) {
+      productionView?.render();
       if (preparationView) { preparationView.render(); budgetView?.render(); return; }
       if (!elements.inventoryList) return;
       const fragment = document.createDocumentFragment();
@@ -1117,7 +1119,7 @@
 
     function renderOpeningDate() {
       const value = state.openingDate;
-      textAt('opening-label', value ? value.split('-').join('.') + ' 오픈 목표' : '오픈일 미정 · 준비 조건부터 확인');
+      textAt('opening-label', '2026.11.1(일) 오픈 · 준비 진행 중');
     }
 
     function renderEditableFields() {
@@ -1293,6 +1295,8 @@
       });
     }
 
+    if (window.createProductionView) productionView = window.createProductionView({getState:()=>state, isLocked:()=>cloudLocked || persistenceBlocked, save:next=>{storePurchase(next);preparationView?.render();}, notify});
+
     if (window.createPreparationView && byId('preparation')) preparationView = window.createPreparationView({
       element: byId('preparation'), getState: () => state,
       source: purchaseSource,
@@ -1343,6 +1347,7 @@
       lock: locked => {
         cloudLocked = locked;
         preparationView?.setLocked();
+        productionView?.setLocked();
         budgetView?.setLocked(locked || persistenceBlocked);
         document.querySelectorAll('#preparation [data-prep-control], .prep-dialog [data-prep-control], #task-list input, #task-list .item-actions button, #inventory-list input, #inventory-list select, #inventory-list .item-actions button, [data-palsibo-check], #buylist-list .item-actions button, #buylist-list textarea, #buylist-list button, .list-editor-toolbar-actions button, #list-editor-dialog input, #list-editor-dialog select, #list-editor-dialog textarea, #list-editor-dialog .editor-form button, #project-note, #opening-date, #import-file, #restore-before-import').forEach(control => { control.disabled = locked || persistenceBlocked; });
       },

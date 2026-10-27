@@ -3,8 +3,8 @@
   const trip = id => 'palsibo-20261026-' + id;
   const rows = [];
   const add = (id, name, use, zone, ids, choices = [], archived = false) => rows.push({id,name,use,zone,ids,choices,archived});
-  add('central-table','중앙 버터 테이블','가운데 상품을 올려둘 테이블과 버터 장식','중앙 테이블',['item-01',trip('owned-table'),trip('measure-table'),'item-38']);
-  add('table-cover','테이블보','테이블에 두를 천 · 사용 여부를 다시 정해요','중앙 테이블',[trip('tablecloth-choice')]);
+  add('central-table','가운데 테이블 A·B','1600×1200×850mm · 버터 벽돌 취소, 식탁보 제작 예정','중앙 테이블',['item-01',trip('owned-table'),trip('measure-table'),'item-38']);
+  add('table-cover','맞춤 식탁보','제작 예정 · 색·천·길이 미정, 자리별 제작물에서 자료 확인','중앙 테이블',[trip('tablecloth-choice')]);
   add('left-cabinets','왼쪽 진열장','왼쪽 벽 아래 상품을 놓을 수납장','벽면',[trip('left-cabinets'),'item-22-v2']);
   add('side-geumyi','상품명 확인 필요','사이드에 2개 놓을 상품 · 가격·사진 확인 필요','사이드',['store-side-20261027-geumyi-13684462098']);
   add('right-cabinets','오른쪽 진열장','오른쪽 벽 아래 상품을 놓을 수납장','벽면',[trip('right-cabinets')]);

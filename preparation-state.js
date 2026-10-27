@@ -28,7 +28,7 @@ function unpack(detail){
 function pack(meta,raw){const out=PREFIX+JSON.stringify(validateMeta(meta))+END+raw;if(out.length>6000)throw Error('기존 내용과 새 기록을 합쳐 6,000자를 넘습니다. 기존 메모를 보관한 뒤 줄여 주세요.');return out;}
 function sourceEntries(state,source,defaults){
  const fallback=new Map(defaults.map(x=>[x.id,x]));
- const result=new Map(state.definitions.inventory.map(x=>[x.id,copy(x)]));
+ const result=new Map(state.definitions.inventory.filter(x=>!x.id.startsWith('place-')).map(x=>[x.id,copy(x)]));
  source.forEach(x=>{if(!result.has(x.id))result.set(x.id,copy(fallback.get(x.id)||B.definition(x)));});
  return result;
 }

@@ -207,6 +207,16 @@
         }
       }
     }
+    function mergeRemote(raw) {
+      if (!window.OfflineSharedMerge || raw === null || !baseState || forceWrite) return false;
+      try {
+        const remote = decode(raw, ui, baseState);
+        const merged = ui.validate(window.OfflineSharedMerge.merge(baseState, ui.getState(), remote), baseState);
+        ui.receive(merged);
+        baseRaw = copy(raw); baseState = copy(remote);
+        show(); schedule(); return true;
+      } catch (_) { return false; }
+    }
     function onRemote(raw) {
       remoteSequence++;
       latestRaw = copy(raw);
@@ -218,6 +228,7 @@
           baseRaw = copy(raw); baseState = copy(next); forceWrite = false; show(); return;
         }
         if (dirty() || forceWrite || raw === null) {
+          if (mergeRemote(raw)) return;
           resolveDifference(raw, raw === null ? '클라우드 기록이 삭제되어 자동 저장을 멈췄습니다.' : '다른 기기와 이 기기에서 기록을 함께 수정했습니다. 어느 기록으로 이어 쓸지 선택해 주세요.'); return;
         }
         ui.receive(next); baseRaw = copy(raw); baseState = copy(next); show();
@@ -237,7 +248,7 @@
         if (stamp !== generation) return;
         if (!result.committed) {
           const fresh = await readRemote();
-          if (stamp === generation) await resolveDifference(fresh, '저장 전에 클라우드 기록이 바뀌어 덮어쓰기를 멈췄습니다. 두 기록을 확인해 주세요.');
+          if (stamp === generation && !mergeRemote(fresh)) await resolveDifference(fresh, '저장 전에 클라우드 기록이 바뀌어 덮어쓰기를 멈췄습니다. 두 기록을 확인해 주세요.');
           return;
         }
         baseRaw = result.snapshot.val(); baseState = sent; forceWrite = false;

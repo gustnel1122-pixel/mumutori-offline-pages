@@ -103,7 +103,7 @@ class Server {
   }
 }
 
-async function client(server, initial = state()) {
+async function client(server, initial = state(), mergeEnabled = false) {
   const document = documentMock(), peer = server.attach(), timers = new Map(), storage = new Map();
   const acknowledgements = [], receipts = [], locks = [];
   let current = clone(initial), nextTimer = 0;
@@ -117,7 +117,7 @@ async function client(server, initial = state()) {
     addEventListener() {}, confirm: () => false
   };
   context.window = context;
-  vm.createContext(context); vm.runInContext(source, context);
+  vm.createContext(context); if(mergeEnabled) vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'shared-merge.js'), 'utf8'), context); vm.runInContext(source, context);
   const cloud = context.createOfflineCloud({
     getState: () => clone(current), validate: validatePurchaseState, blocked: () => false, isPristine: () => false,
     receive: value => { current = clone(value); receipts.push(clone(value)); },
@@ -273,3 +273,20 @@ test('two clients share preparation decisions, actor, opinion and progress using
 });
 
 test('two clients share v3 photo URLs and payment checks without changing Firebase record shape',async()=>{const server=new Server(state()),a=await client(server),b=await client(server);a.editPreparation({photos:['https://example.test/photo.jpg'],progress:'결제완료'},'사장님');await a.flush();server.commitNext();await settle();let r=P.rows(b.getState(),[],[],[])[0];assert.deepEqual(r.photos,['https://example.test/photo.jpg']);assert.equal(r.bought,true);b.editPreparation({comment:'사진 확인',progress:'배송중'},'다희');await b.flush();server.commitNext();await settle();r=P.rows(a.getState(),[],[],[])[0];assert.equal(r.photos.length,1);assert.equal(r.comment,'사진 확인');assert.equal(r.bought,true);});
+
+
+test('shared board merges disjoint two-client changes after a rejected CAS and re-acknowledges', async () => {
+  const initial=state(),server=new Server(initial),first=await client(server,initial,true),second=await client(server,initial,true);
+  first.change({status:'발주'});second.change({note:'다른 칸의 메모'});
+  await first.flush();await second.flush();server.commitNext();await settle();
+  assert.equal(server.commitNext().committed,false);await settle();
+  assert(!second.document.nodes.some(n=>n.tagName==='dialog'&&n.open));
+  await second.flush();assert.equal(server.pending.length,1);server.commitNext();await settle();
+  assert.equal(server.value.inventory[itemId].status,'발주');assert.equal(server.value.definitions.inventory[0].detail,'다른 칸의 메모');
+  assert.deepEqual(first.getState(),second.getState());assert.deepEqual(second.acknowledgements.at(-1),second.getState());
+});
+test('same-field edits with merge enabled still preserve both versions in conflict dialog', async () => {
+  const initial=state(),server=new Server(initial),first=await client(server,initial,true),second=await client(server,initial,true);
+  first.change({note:'현수'});second.change({note:'다희'});await first.flush();await second.flush();server.commitNext();await settle();server.commitNext();await settle();
+  assert.equal(server.value.definitions.inventory[0].detail,'현수');assert.equal(second.getState().definitions.inventory[0].detail,'다희');assert(second.document.nodes.some(n=>n.tagName==='dialog'&&n.open));
+});

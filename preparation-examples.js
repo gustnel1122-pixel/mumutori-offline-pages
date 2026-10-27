@@ -3,11 +3,11 @@
  * Existing photos, links, decisions and shared records remain authoritative. */
 (function(root){const examples={
   "central-table": {
-    "name": "중앙 버터 테이블 · 기존 목업",
+    "name": "중앙 테이블 · 과거 목업 참고",
     "image": "https://gustnel1122-pixel.github.io/mumutori-offline-pages/assets/mumutori-butter-table-v2.png",
     "url": "https://gustnel1122-pixel.github.io/mumutori-offline-pages/#design-spec",
     "price": "제작 견적 필요",
-    "note": "약 200×60cm는 실측 전 가안. 사진은 기존 형태 참고이며 최신 요청인 옆면 버터 벽돌 마감과는 달라요. 테이블보 구매안이 아니에요. 기존 테이블 재사용·하중·청소 방법부터 확인해요.",
+    "note": "이 사진은 과거 목업입니다. 최신 확정은 A·B 결합 1600×1200×850mm + 식탁보 제작 예정이며 버터 벽돌은 취소됐어요. 색·천·길이는 자리별 제작물 칸에서 확인해요.",
     "kind": "reference",
     "checkedAt": "2026-10-26",
     "sourceId": "",
