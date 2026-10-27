@@ -1374,6 +1374,19 @@ window.OFFLINE_BUYLIST = {
    "price": "",
    "link": "",
    "logo": ""
-  }
- ]
-};
+  },
+ {
+   "id": "store-side-20261027-geumyi-13684462098",
+   "group": "브랜드 무드 아이템",
+   "groupKey": "mood",
+   "name": "상품명 확인 필요",
+   "priority": "필수",
+   "qty": "2",
+   "use": "",
+   "note": "[[MUMUTORI_PREPARATION:1]]\n{\"decision\":\"yes\",\"by\":\"사장님\",\"at\":\"2026-10-27T12:54:00+09:00\",\"progress\":\"미정\",\"quantity\":\"2\",\"zone\":\"사이드\",\"essential\":true}\n[[/MUMUTORI_PREPARATION]]\n10/27 사이드에 2개 놓기로 결정. 아직 구매하지 않았어요. 상품명·가격·예시 사진 확인 필요.",
+   "link": "https://smartstore.naver.com/geumyi/products/13684462098",
+   "price": "",
+   "status": "검토"
+ }
+  ]
+ };

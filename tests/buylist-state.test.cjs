@@ -33,10 +33,10 @@ function assertSchema(value) {
   assert(value.detail.length <= 6000);
 }
 
-test('reading the 80-item catalogue and all groups never materializes or changes saved inventory', () => {
+test('reading the 81-item catalogue and all groups never materializes or changes saved inventory', () => {
   const before = freeze(state()), sourceCopy = freeze(plain(source));
   const groups = B.groups(sourceCopy);
-  assert.equal(sourceCopy.length, 80);
+  assert.equal(sourceCopy.length, 81);
   assert.equal(groups.length, 10);
   assert.equal(new Set(groups.map(group => group.key)).size, groups.length);
   assert.deepEqual(B.groups({items: sourceCopy}), groups);
@@ -150,7 +150,7 @@ test('each real group accepts one stable custom ID and retains its membership af
   }
   const reloaded = JSON.parse(JSON.stringify(current));
   const catalogue = B.catalogue(reloaded, freeze(plain(source)));
-  assert.equal(catalogue.length, 80 + groups.length);
+  assert.equal(catalogue.length, 81 + groups.length);
   assert.equal(new Set(catalogue.map(item => item.id)).size, catalogue.length);
   for (const group of groups) {
     const id = groupId(group), item = catalogue.find(value => value.id === id);

@@ -6,6 +6,7 @@
   add('central-table','중앙 버터 테이블','가운데 상품을 올려둘 테이블과 버터 장식','중앙 테이블',['item-01',trip('owned-table'),trip('measure-table'),'item-38']);
   add('table-cover','테이블보','테이블에 두를 천 · 사용 여부를 다시 정해요','중앙 테이블',[trip('tablecloth-choice')]);
   add('left-cabinets','왼쪽 진열장','왼쪽 벽 아래 상품을 놓을 수납장','벽면',[trip('left-cabinets'),'item-22-v2']);
+  add('side-geumyi','상품명 확인 필요','사이드에 2개 놓을 상품 · 가격·사진 확인 필요','사이드',['store-side-20261027-geumyi-13684462098']);
   add('right-cabinets','오른쪽 진열장','오른쪽 벽 아래 상품을 놓을 수납장','벽면',[trip('right-cabinets')]);
   add('letter-desk','타자기 책상','타자기를 놓고 편지를 쓰는 자리','레터 코너',[trip('letter-desk'),'item-02-v2']);
   add('letter-stool','책상 의자','타자기 책상 앞에 앉을 나무 의자','레터 코너',[trip('letter-stool'),'item-03']);
@@ -64,7 +65,7 @@
   add('cleaning','청소·전선 정리 도구','매장을 청소하고 전선을 정리해요','창고',['item-15']);
   add('old-letter','이전 편지 운영 용품','예전에 사용하지 않기로 한 안내·보관 용품 기록','레터 코너',['item-11','item-31','item-32','item-35','item-36','item-37'],[],true);
   // Opening essentials only; optional source records stay intact and can be promoted.
-  const essentials=new Set(['central-table','left-cabinets','right-cabinets','signs','pos','letter-desk','letter-stool','letter-mailbox','typewriter','letter-paper','cargo','display-tools','opp-bags','shopping-bags','cleaning','interior','printer','label-paper']);
+  const essentials=new Set(['side-geumyi','central-table','left-cabinets','right-cabinets','signs','pos','letter-desk','letter-stool','letter-mailbox','typewriter','letter-paper','cargo','display-tools','opp-bags','shopping-bags','cleaning','interior','printer','label-paper']);
   rows.forEach(row=>{row.essential=essentials.has(row.id);});
   rows.find(row=>row.id==='pos').use='끝 · 서류와 신청 완료 (10/26 사장님 확인)';
   root.OFFLINE_PREPARATION_GROUPS=rows;
