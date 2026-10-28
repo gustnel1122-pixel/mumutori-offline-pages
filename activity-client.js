@@ -9,12 +9,12 @@ function createReporter(deps={}){
  const current=deps.user||user,request=deps.fetch||((...args)=>root.fetch(...args));
  const uuid=deps.uuid||(()=>root.crypto.randomUUID().replaceAll('-','').toLowerCase());
  const attempts=new Map();
- function make(screen,action){try{if(!screens.has(screen)||!actions.has(action))return null;const id=uuid();if(!/^[a-f0-9]{32}$/.test(id))return null;return {eventId:'act_'+id,workId:'web_'+id,screen,action};}catch{return null;}}
+ function make(screen,action,workId){try{if(!screens.has(screen)||!actions.has(action))return null;const id=uuid();if(!/^[a-f0-9]{32}$/.test(id))return null;return {eventId:'act_'+id,workId:/^nav1_(letter|finance|cart|board|order|login|home|tasks|spec)_[A-Za-z0-9_-]*$/.test(workId||'')&&workId.length<=80?workId:'web_'+id,screen,action};}catch{return null;}}
  function record(input){
   try{
    if(!input||!screens.has(input.screen)||!actions.has(input.action))return Promise.resolve(false);
-   const item=input.eventId?input:make(input.screen,input.action);
-   if(!item||!/^act_[a-f0-9]{32}$/.test(item.eventId)||!/^web_[a-f0-9]{32}$/.test(item.workId))return Promise.resolve(false);
+   const item=input.eventId?input:make(input.screen,input.action,input.workId);
+   if(!item||!/^act_[a-f0-9]{32}$/.test(item.eventId)||!(/^(web_[a-f0-9]{32}|nav1_(letter|finance|cart|board|order|login|home|tasks|spec)_[A-Za-z0-9_-]*)$/.test(item.workId)&&item.workId.length<=80))return Promise.resolve(false);
    const u=current();if(!u?.uid)return Promise.resolve(false);
    if(attempts.has(item.eventId))return attempts.get(item.eventId);
    const work=async()=>{

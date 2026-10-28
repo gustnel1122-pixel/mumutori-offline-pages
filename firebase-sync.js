@@ -1,7 +1,8 @@
 /* Full-state sync for the shared project identified by the current URL. */
 (function () {
   'use strict';
-  const shareKey = new URLSearchParams(window.location.search).get('share') || '';
+  let shareKey = new URLSearchParams(window.location.search).get('share') || '';
+  try{if(/^[A-Za-z0-9_-]{43}$/.test(shareKey))localStorage.setItem('mmt-order-share-v1',shareKey);else if(new URLSearchParams(location.search).has('item'))shareKey=localStorage.getItem('mmt-order-share-v1')||'';}catch{}
   const shared = /^[A-Za-z0-9_-]{43}$/.test(shareKey);
   const ROOT = shared ? 'hub/offlineStoreShared/' + shareKey : null;
   const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
