@@ -182,6 +182,7 @@
       finally { migrationRunning = false; }
     }
     function cloudSettled(snapshot) {
+      window.OfflineActivity?.settled(snapshot);
       acknowledgeMigration(snapshot);
       // Run after Firebase has updated its comparison baseline.
       queueMicrotask(migratePalsibo);
